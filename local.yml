@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - ./src/.envs/.local/.postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    container_name: rs-data-pg
+  
+  # cache:
+  #   image: redis
+  #   volumes:
+  #     - cache_data:/data/
+  #   container_name: cache-rs-data
+      
+  app:
+    build:
+      context: .
+      dockerfile: ./src/.compose/.local/Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/code
+    env_file:
+      - .env
+      - ./src/.envs/.updater
+    depends_on:
+      - db
+      # - cache
+    links:
+      - db
+    #   - cache
+    container_name: rs-data
+    tty: true
+
+volumes:
+  pg_data:
+#   cache_data:

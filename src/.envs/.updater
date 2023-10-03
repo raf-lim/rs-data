@@ -1,0 +1,7 @@
+# FRED
+STLOUISFED_BASE_URL=https://api.stlouisfed.org/fred/series/observations?series_id=
+FRED_START_DATE=2023-01-01
+
+# UMCSI
+UMCSI_INDEX_URL=http://www.sca.isr.umich.edu/files/tbmics.csv
+UMSCI_COMP_URL=http://www.sca.isr.umich.edu/files/tbmiccice.csv
