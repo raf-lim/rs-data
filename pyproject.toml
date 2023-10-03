@@ -6,7 +6,9 @@ authors = ["raf-lim <raf.sukiennik@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11,<3.13"
+sqlalchemy = "^2.0.21"
+pandas = "^2.1.1"
 
 
 [build-system]
