@@ -1,8 +1,9 @@
 import logging
 from db.base import engine
+from updater.us.interfaces import DataType, StatsType
 from updater.us.fred import metrics
 from updater.us.fred import collectors
-
+from updater.libs import cleaners, statistics
 
 
 if __name__ == "__main__":
@@ -14,13 +15,40 @@ if __name__ == "__main__":
                     metric=metric,
                     data_getter=collectors.get_constituent_data
                 )
-                data.to_sql(metric.name.lower(), connection, if_exists="replace")
             except Exception as e:
-                logging.warning(e)
+                logging.warning(f"Collecting data for {metric.name} failed. {e}")
                 continue
 
-            #TODO: continue with add statistics.
-            print(data)
-            # data.to_sql(metric.name, connection, if_exists="replace")
+            data = cleaners.remove_longer_not_reported(
+                data=data,
+                last_not_reported=6,
+            )
+            if metric.data == DataType.CHANGE:
+                data = statistics.compute_period_to_period_change(
+                    metric=metric,
+                    frequency=metric.frequency,
+                    data=data,
+                )
+
+            if metric.stats == StatsType.DIFFERENCE:
+                stats = statistics.compute_stats_difference(metric, data)
+            elif metric.stats == StatsType.CHANGE:
+                stats = statistics.compute_stats_percent_change(metric, data)
+
+            metric_name = metric.name.replace(" ", "_").lower()
+
+            data.to_sql(
+                name=f"{metric_name}_data",
+                con=connection,
+                if_exists="replace",
+            )
+
+            stats.to_sql(
+                name=f"{metric_name}_stats",
+                con=connection,
+                if_exists="replace",
+            )
         
-        # connection.commit()
+        connection.commit()
+
+        #TODO: set index and column names properelly!

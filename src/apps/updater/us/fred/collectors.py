@@ -22,7 +22,7 @@ def get_constituent_data(code: str) -> dict[str, float]:
     response = requests.get(url, timeout=None)
     data = response.json()
     
-    return {i["date"]: i["value"] for i in data["observations"]}
+    return {i["date"]: float(i["value"]) for i in data["observations"]}
 
 
 ConstituentDataGetterFn = Callable[[str], dict[str, float]]

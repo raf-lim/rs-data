@@ -1,5 +1,5 @@
 # US macroeconomy metrics from FRED.
-from updater.us.interfaces import Metric, Frequency, TableType, StatsType
+from updater.us.interfaces import Metric, Frequency, DataType, StatsType
 
 
 class Gdp:
@@ -14,7 +14,8 @@ class Gdp:
         'EXPGSC1': 'Exports',
     }
     frequency = Frequency.QUARTERLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class GdpPriceIndex:
@@ -25,7 +26,8 @@ class GdpPriceIndex:
         'JCXFE': 'PCE Core Price Index',
     }
     frequency = Frequency.QUARTERLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class DebtToGdp:
@@ -33,7 +35,8 @@ class DebtToGdp:
     name = 'Debt to GDP'
     constituents = {'GFDEGDQ188S': 'Debt to GDP',}
     frequency = Frequency.QUARTERLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class EmploymentCostIndex:
@@ -41,7 +44,8 @@ class EmploymentCostIndex:
     name = 'Employment Cost Index'
     constituents = {'ECIALLCIV': 'Employment Cost Index'}
     frequency = Frequency.QUARTERLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class Inflation:
@@ -57,7 +61,8 @@ class Inflation:
         'PPICOR': 'PPI Core',
     }
     frequency = Frequency.MONTHLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class RetailSales:
@@ -82,7 +87,8 @@ class RetailSales:
         'RSSGHBMS': 'Sporting Hobby Books Music',
     }
     frequency = Frequency.MONTHLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class IndustrialProduction:
@@ -100,7 +106,8 @@ class IndustrialProduction:
         'TCU': 'Capacity Utilization',
     }
     frequency = Frequency.MONTHLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class DurableGoods:
@@ -119,7 +126,8 @@ class DurableGoods:
         'A35SNO': 'Electrical Equipment',
     }
     frequency = Frequency.MONTHLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class Housing:
@@ -131,7 +139,8 @@ class Housing:
         'COMPUTSA': 'Completed',
         }
     frequency = Frequency.MONTHLY
-    table = (TableType.INDEX, StatsType.CHANGE)
+    data = DataType.INDEX
+    stats = StatsType.CHANGE
 
 
 class JobsNfp:
@@ -142,7 +151,8 @@ class JobsNfp:
         'CES0500000011': 'Weekly Earnings'
         }
     frequency = Frequency.MONTHLY
-    table = (TableType.INDEX, StatsType.DIFFERENCE)
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
 
 
 class JobsUr:
@@ -153,7 +163,8 @@ class JobsUr:
         'CIVPART': 'Participation Rate'
         }
     frequency = Frequency.MONTHLY
-    table = (TableType.INDEX, StatsType.DIFFERENCE)
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
 
 
 class FedFunds:
@@ -161,7 +172,8 @@ class FedFunds:
     name = 'FED Funds Rate'
     constituents = {'FEDFUNDS': 'FED Funds'}
     frequency = Frequency.MONTHLY
-    table = (TableType.INDEX, StatsType.DIFFERENCE)
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
 
 
 class TradeBalance:
@@ -169,18 +181,26 @@ class TradeBalance:
     name = 'Trade Balance'
     constituents = {'BOPGSTB': 'Trade Balance'}
     frequency = Frequency.MONTHLY
-    table = table = (TableType.INDEX, StatsType.CHANGE)
+    data = DataType.INDEX
+    stats = StatsType.CHANGE
 
 
-class JoblessClaims:
-    code = 'claims'
-    name = 'Jobless Claims'
-    constituents = {
-        'ICSA': 'Initial Claims',
-        'CCSA': 'Continued Claims',
-        }
+class InitialClaims:
+    code = 'init_claims'
+    name = 'Initial Claims'
+    constituents = {'ICSA': 'Initial Claims'}
     frequency = Frequency.WEEKLY
-    table = (TableType.INDEX, StatsType.DIFFERENCE)
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
+
+
+class ContinuedClaims:
+    code = 'cont_claims'
+    name = 'Continued Claims'
+    constituents = {'CCSA': 'Continued Claims'}
+    frequency = Frequency.WEEKLY
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
 
 
 class MoneyStock:
@@ -191,7 +211,8 @@ class MoneyStock:
         'WM2NS': 'M2',
         }
     frequency = Frequency.WEEKLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class TotalAssets:
@@ -199,7 +220,8 @@ class TotalAssets:
     name = 'Total Assets'
     constituents = {'WALCL': 'Total Assets',}
     frequency = Frequency.WEEKLY
-    table = (TableType.CHANGE, StatsType.DIFFERENCE)
+    data = DataType.CHANGE
+    stats = StatsType.DIFFERENCE
 
 
 class BondYields:
@@ -214,7 +236,8 @@ class BondYields:
         'DGS3MO': '3_Month',
     }
     frequency = Frequency.DAILY
-    table = (TableType.INDEX, StatsType.DIFFERENCE)
+    data = DataType.INDEX
+    stats = StatsType.DIFFERENCE
 
 
 metrics: list[Metric] = [
@@ -222,7 +245,8 @@ metrics: list[Metric] = [
     # RetailSales,
     # IndustrialProduction,
     # DurableGoods,
-    # JoblessClaims,
+    InitialClaims,
+    ContinuedClaims,
     # JobsNfp,
     # JobsUr,
     # EmploymentCostIndex,

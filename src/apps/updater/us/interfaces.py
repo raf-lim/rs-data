@@ -9,7 +9,7 @@ class Frequency(Enum):
     QUARTERLY = 'q'
 
 
-class TableType(Enum):
+class DataType(Enum):
     INDEX = auto()
     CHANGE = auto()
 
@@ -25,4 +25,5 @@ class Metric(Protocol):
     name: str
     constituents: Optional[dict[str, str]]
     frequency: str
-    table: Optional[tuple[TableType, StatsType]]
+    data: Optional[DataType]
+    stats: Optional[StatsType]
