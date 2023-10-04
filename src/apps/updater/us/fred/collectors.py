@@ -1,9 +1,9 @@
 import os
+from typing import Callable
 import logging
 import requests
 import pandas as pd
-from apps.updater.us.interfaces import Metric
-
+from updater.us.interfaces import Metric
 logging.basicConfig(level=logging.INFO)
 
 FRED_BASE_URL = os.getenv("FRED_BASE_URL")
@@ -11,32 +11,34 @@ API_KEY = os.getenv("FRED_API_KEY")
 START_DATE = os.getenv("FRED_START_DATE")
 
 
-def get_constituent_url(code: str) -> str:
-    """
-    Get end point url of metric's constituent.
-    """
-    return (
-        f'{FRED_BASE_URL}{code}&api_key={API_KEY}'
-        f'&observation_start={START_DATE}&file_type=json'
-    )
-
-
 def get_constituent_data(code: str) -> dict[str, float]:
     """
-    Get Us metric's constituent data form Fred API.
+    Get US metric's constituent data form Fred API.
     """
-    url = get_constituent_url(code)
+    url = (
+        f"{FRED_BASE_URL}{code}&api_key={API_KEY}"
+        f"&observation_start={START_DATE}&file_type=json"
+    )
     response = requests.get(url, timeout=None)
     data = response.json()
     
     return {i["date"]: i["value"] for i in data["observations"]}
 
 
-def get_and_metric_data(metric: Metric) -> pd.DataFrame:
+ConstituentDataGetterFn = Callable[[str], dict[str, float]]
+
+
+def get_together_constituents_data(
+        metric: Metric,
+        data_getter: ConstituentDataGetterFn
+    ) -> pd.DataFrame:
+    """Get all constituents data for a metric and convert into dataframe."""
     metric_data: dict[str, dict[str, float]] = {}
     for code, name in metric.constituents.items():
         try:
-            metric_data[name] = get_constituent_data(code)
-            return pd.DataFrame(metric_data).sort_index()
+            metric_data[name] = data_getter(code)
         except Exception as e:
             logging.warning(f"{name} failed {e}")
+            continue
+
+    return pd.DataFrame(metric_data).sort_index()

@@ -27,8 +27,9 @@ services:
     volumes:
       - ./src:/code
     env_file:
-      - .env
+      - ./src/.envs/.local/.postgres
       - ./src/.envs/.updater
+      - .env
     depends_on:
       - db
       # - cache

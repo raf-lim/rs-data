@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y postgresql-client
 ENV PYTHONPATH=${PYTHONPATH}:${PWD}
 
 # install poetry and dependencies
-COPY pyproject.toml .
+COPY ./src/pyproject.toml ./src/poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
