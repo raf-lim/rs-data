@@ -1,5 +1,5 @@
 # US macroeconomy metrics from FRED.
-from us.interfaces import Metric, Frequency, TableType, StatsType
+from apps.updater.us.interfaces import Metric, Frequency, TableType, StatsType
 
 
 class Gdp:
@@ -219,20 +219,20 @@ class BondYields:
 
 metrics: list[Metric] = [
     Housing,
-    RetailSales,
-    IndustrialProduction,
-    DurableGoods,
-    JoblessClaims,
-    JobsNfp,
-    JobsUr,
-    EmploymentCostIndex,
-    Inflation,
-    Gdp,
-    GdpPriceIndex,
-    TradeBalance,
-    DebtToGdp,
-    TotalAssets,
-    FedFunds,
-    BondYields,
-    MoneyStock,
+    # RetailSales,
+    # IndustrialProduction,
+    # DurableGoods,
+    # JoblessClaims,
+    # JobsNfp,
+    # JobsUr,
+    # EmploymentCostIndex,
+    # Inflation,
+    # Gdp,
+    # GdpPriceIndex,
+    # TradeBalance,
+    # DebtToGdp,
+    # TotalAssets,
+    # FedFunds,
+    # BondYields,
+    # MoneyStock,
 ]
