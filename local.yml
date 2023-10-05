@@ -37,7 +37,7 @@ services:
       - db
     #   - cache
     container_name: rs-data
-    tty: true
+    tty: true  # to keep container running (no need if uvicorn runs)
 
 volumes:
   pg_data:
