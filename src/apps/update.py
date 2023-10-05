@@ -1,4 +1,5 @@
 import logging
+from sqlalchemy import text
 from db.base import engine
 from updater.us.interfaces import DataType, StatsType
 from updater.us.fred import metrics
@@ -9,6 +10,7 @@ from updater.libs import cleaners, statistics
 if __name__ == "__main__":
 
     with engine.connect() as connection:
+        # connection.execute(text("CREATE SCHEMA IF NOT EXISTS fred"))
         for metric in metrics.metrics:
             try:
                 data = collectors.get_together_constituents_data(
@@ -40,13 +42,18 @@ if __name__ == "__main__":
             data.to_sql(
                 name=f"{metric_name}_data",
                 con=connection,
+                # schema="fred",
                 if_exists="replace",
+                index=True,
+                index_label="date"
             )
 
             stats.to_sql(
                 name=f"{metric_name}_stats",
                 con=connection,
                 if_exists="replace",
+                index=True,
+                index_label="date"
             )
         
         connection.commit()
