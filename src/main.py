@@ -1,6 +1,6 @@
 import logging
 from sqlalchemy import text
-from db.base import engine, get_db
+from db.base import engine
 from updaters.us.interfaces import DataType, StatsType
 from updaters.us.fred import metrics
 from updaters.us.fred import collectors
@@ -40,7 +40,7 @@ if __name__ == "__main__":
             metric_name = metric.name.replace(" ", "_").lower()
 
             data.to_sql(
-                name=f"{metric_name}_data",
+                name=f"us_{metric_name}_data",
                 con=connection,
                 # schema="fred",
                 if_exists="replace",
@@ -49,13 +49,11 @@ if __name__ == "__main__":
             )
 
             stats.to_sql(
-                name=f"{metric_name}_stats",
+                name=f"us_{metric_name}_stats",
                 con=connection,
                 if_exists="replace",
                 index=True,
-                index_label="date"
+                index_label="metric"
             )
         
         connection.commit()
-
-        #TODO: set index and column names properelly!

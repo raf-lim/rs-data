@@ -53,30 +53,17 @@ def compute_stats_difference(
               (max_of_entire_series - min_of_entire_series)
         )
 
-        statistics[col.replace(" ", "_").lower()] = [
-            average_3m,
-            average_6m,
-            average_12m,
-            last_vs_previous,
-            last_vs_last_year,
-            percentile,
-            'above' if (last - average_12m) > 0 else 'below',
-        ]
+        statistics[col.replace(" ", "_").lower()] = {
+            "average 3M": average_3m,
+            "average 6M": average_6m,
+            "average 12M": average_12m,
+            "last - previous": last_vs_previous,
+            "last - LY": last_vs_last_year,
+            "precentile": percentile,
+            "last - average 12M": "above" if (last - average_12m) > 0 else "below",
+        }
 
-    stats_df = pd.DataFrame(
-        statistics,
-        index=[
-            'average 3M',
-            'average 6M',
-            'average 12M',
-            'last - previous',
-            'last - LY',
-            'percentile',
-            'last - average 12M',
-        ]
-    ).reset_index()
-
-    return stats_df #df_out.transpose()
+    return pd.DataFrame(statistics)
 
 
 def compute_stats_percent_change(
@@ -123,30 +110,17 @@ def compute_stats_percent_change(
             (last - min_of_entire_series)
               / (max_of_entire_series - min_of_entire_series)
         )
-        stats[col.replace(" ", "_").lower()] = [
-            average_3m,
-            average_6m,
-            average_12m,
-            last_to_previous,
-            last_to_ly,
-            percentile,
-            'above' if (last - average_12m) > 0 else 'below',
-        ]
-    stats_df = pd.DataFrame(
-        stats,
-        index=[
-            'last 3M average',
-            'last 6M average',
-            'last 12M average',
-            'last/previous',
-            'last/LY',
-            'percentile',
-            'last - average 12M',
-        ]
-    ).reset_index()
-    # df_out = pd.concat([df, stats_df], axis=0)
+        stats[col.replace(" ", "_").lower()] = {
+            "last 3M average": average_3m,
+            "last 6M average": average_6m,
+            "last 12M average": average_12m,
+            "last/previous": last_to_previous,
+            "last/LY": last_to_ly,
+            "precentile": percentile,
+            "last - average 12M": "above" if (last - average_12m) > 0 else "below",
+        }
 
-    return stats_df #df_out.transpose()
+    return pd.DataFrame(stats)
 
 
 def compute_period_to_period_change(
