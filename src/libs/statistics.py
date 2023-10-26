@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from statistics import mean
 
-from updater.us.interfaces import Frequency
+from updaters.us.interfaces import Frequency
 
 
 class Metric(Protocol):

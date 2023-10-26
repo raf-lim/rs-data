@@ -3,7 +3,7 @@ from typing import Callable
 import logging
 import requests
 import pandas as pd
-from updater.us.interfaces import Metric
+from updaters.us.interfaces import Metric
 logging.basicConfig(level=logging.INFO)
 
 FRED_BASE_URL = os.getenv("FRED_BASE_URL")

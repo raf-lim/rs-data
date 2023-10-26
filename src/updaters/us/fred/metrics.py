@@ -1,5 +1,5 @@
 # US macroeconomy metrics from FRED.
-from updater.us.interfaces import Metric, Frequency, DataType, StatsType
+from updaters.us.interfaces import Metric, Frequency, DataType, StatsType
 
 
 class Gdp:

@@ -9,4 +9,4 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-exec uvicorn apps.api:app --host 0.0.0.0 --reload
+exec sh

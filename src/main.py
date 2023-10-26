@@ -1,10 +1,10 @@
 import logging
 from sqlalchemy import text
-from db.base import engine
-from updater.us.interfaces import DataType, StatsType
-from updater.us.fred import metrics
-from updater.us.fred import collectors
-from updater.libs import cleaners, statistics
+from db.base import engine, get_db
+from updaters.us.interfaces import DataType, StatsType
+from updaters.us.fred import metrics
+from updaters.us.fred import collectors
+from libs import cleaners, statistics
 
 
 if __name__ == "__main__":
