@@ -36,7 +36,9 @@ def get_together_constituents_data(
     metric_data: dict[str, dict[str, float]] = {}
     for code, name in metric.constituents.items():
         try:
-            metric_data[name] = data_getter(code)
+            data = data_getter(code)
+            name = name.replace(" ", "_").lower()
+            metric_data[name] = data
         except Exception as e:
             logging.warning(f"{name} failed {e}")
             continue
