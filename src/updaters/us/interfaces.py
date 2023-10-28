@@ -3,10 +3,10 @@ from enum import Enum, auto
 
 
 class Frequency(Enum):
-    DAILY = 'd'
-    WEEKLY = 'w'
-    MONTHLY = 'm'
-    QUARTERLY = 'q'
+    DAILY = auto()
+    WEEKLY = auto()
+    MONTHLY = auto()
+    QUARTERLY = auto()
 
 
 class DataType(Enum):
