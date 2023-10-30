@@ -23,10 +23,10 @@ def set_fred_api_start_date(
     depending on metric's data frequency.
     """
     if frequency == Frequency.DAILY:
-        start_date = date.today() - timedelta(days=DAYS_BACK)
+        start_date = date.today() - timedelta(days=int(DAYS_BACK))
         return datetime.strftime(start_date, format="%Y-%m-%d")
     elif frequency == Frequency.WEEKLY:
-        start_date = date.today() - timedelta(weeks=WEEKS_BACK)
+        start_date = date.today() - timedelta(weeks=int(WEEKS_BACK))
         return datetime.strftime(start_date, format="%Y-%m-%d")
     
     return start_date 

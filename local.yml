@@ -28,7 +28,6 @@ services:
       - ./src:/code
     env_file:
       - ./src/.envs/.local/.postgres
-      - ./src/.envs/.updater
       - .env
     depends_on:
       - db
