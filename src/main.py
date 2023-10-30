@@ -10,9 +10,11 @@ from libs import cleaners, statistics, helpers
 def main_us(db_connection):
 
     for metric in metrics.metrics:
+        start_date = collectors.set_fred_api_start_date(metric.frequency)
         try:
             metric_data = collectors.get_together_constituents_data(
                 metric=metric,
+                start_date=start_date,
                 data_getter=collectors.get_constituent_data
             )
         except Exception as e:
