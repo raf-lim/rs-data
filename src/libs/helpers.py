@@ -1,7 +1,5 @@
 from typing import Protocol, Optional
 import pandas as pd
-import numpy as np
-from statistics import mean
 
 from updaters.us.interfaces import Frequency
 
@@ -30,20 +28,19 @@ def set_full_year_readings_number(frequency: Frequency) -> int:
 
 def compute_period_to_period_change(
         metric: Metric,
-        frequency: Frequency,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
     """Create dataframe with period to period changes."""
 
     match metric.frequency:
-        case frequency.WEEKLY:
+        case Frequency.WEEKLY:
             y_interval = 52
             m_interval = 4
             t_suffix = 'mtm'
-        case frequency.MONTHLY:
+        case Frequency.MONTHLY:
             y_interval = 12
             t_suffix = 'mtm'
-        case frequency.QUARTERLY:
+        case Frequency.QUARTERLY:
             y_interval = 4
             t_suffix = 'qtq'
 
@@ -52,7 +49,7 @@ def compute_period_to_period_change(
         col_t = f'{col} {t_suffix}'
         col_y = f'{col} yoy'
 
-        if metric.frequency == frequency.WEEKLY:
+        if metric.frequency == Frequency.WEEKLY:
             data[col_t] = data[col].pct_change(periods=m_interval)
         else:
             data[col_t] = data[col].pct_change()
