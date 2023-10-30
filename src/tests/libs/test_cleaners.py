@@ -1,5 +1,5 @@
 import pandas as pd
-from src.libs import cleaners
+from libs import cleaners
 
 
 def test_remove_longer_not_reoprted():
