@@ -39,8 +39,9 @@ def compute_statistics(
     statistics["average(1Y)"] = average_1Y
     statistics["last vs previous"] = last_vs_previous
     statistics["last vs LY"] = last_vs_last_year
-    statistics["last-average 12M"] = (
-        "above" if (last - average_1Y) > 0 else "below"
-    )
+    statistics["last-average(3)"] = last - average_L3
+    statistics["last-average(6)"] = last - average_L6
+    statistics["last-average(1Y)"] = last - average_1Y
+
 
     return pd.Series(data=statistics.values(), index=statistics.keys())
