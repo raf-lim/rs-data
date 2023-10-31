@@ -240,7 +240,7 @@ class BondYields:
     stats = StatsType.DIFFERENCE
 
 
-metrics: list[Metric] = [
+selected_metrics: list[Metric] = [
     Housing,
     RetailSales,
     IndustrialProduction,
