@@ -28,7 +28,6 @@ def main_us(db_connection):
         if metric.data == DataType.CHANGE:
             clean_metric_data = helpers.compute_period_to_period_change(
                 metric=metric,
-                frequency=metric.frequency,
                 data=metric_data,
             )
         
