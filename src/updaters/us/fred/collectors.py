@@ -16,17 +16,20 @@ WEEKS_BACK= getenv("NUMBER_OF_WEEKS_WEEKLY_FREQ")
 
 
 def set_fred_api_start_date(
-        frequency: Frequency, start_date: str = START_DATE,
+        frequency: Frequency,
+        start_date: str = START_DATE,
+        days_back: str = DAYS_BACK,
+        weeks_back: str = WEEKS_BACK,
 ) -> str:
     """
     Setting starting date for api endpoint
     depending on metric's data frequency.
     """
     if frequency == Frequency.DAILY:
-        start_date = date.today() - timedelta(days=int(DAYS_BACK))
+        start_date = date.today() - timedelta(days=int(days_back))
         return datetime.strftime(start_date, format="%Y-%m-%d")
     elif frequency == Frequency.WEEKLY:
-        start_date = date.today() - timedelta(weeks=int(WEEKS_BACK))
+        start_date = date.today() - timedelta(weeks=int(weeks_back))
         return datetime.strftime(start_date, format="%Y-%m-%d")
     
     return start_date 
