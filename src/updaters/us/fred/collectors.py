@@ -1,10 +1,9 @@
 from os import getenv
 from datetime import datetime, date, timedelta
-from typing import Callable
 import logging
 import requests
-import pandas as pd
-from updaters.us.interfaces import Metric, Frequency
+from updaters.us.interfaces import Frequency
+from updaters.us import exceptions
 logging.basicConfig(level=logging.INFO)
 
 
@@ -50,28 +49,12 @@ def fetch_constituent_data(code: str, start_date: str) -> JSON:
 
 def parse_constituent_data(raw_data: JSON) -> dict[str, float]:
     """Parse US metric's constituent data from json response."""
+    if not "observations" in raw_data:
+        raise exceptions.FredApiNoObservationsDataException(
+            "No observations data in FRED API response."
+            )
+     
     return {
-        i["date"]: float(i["value"])
-          for i in raw_data["observations"]
-            if not i["value"] == "."
+        i["date"]: float(i["value"]) for i in raw_data["observations"]
+            if i["value"] != "."
             }
-
-
-# ConstituentDataGetterFn = Callable[[str, str], dict[str, float]]
-
-
-# def get_together_constituents_data(
-#         metric: Metric, start_date: str,
-#         data_getter: ConstituentDataGetterFn) -> pd.DataFrame:
-#     """Get all constituents data for a metric and convert into dataframe."""
-#     metric_data: dict[str, dict[str, float]] = {}
-#     for code, name in metric.constituents.items():
-#         try:
-#             data = data_getter(code, start_date)
-#             name = name.replace(" ", "_").lower()
-#             metric_data[name] = data
-#         except Exception as e:
-#             logging.warning(f"{name} failed {e}")
-#             continue
-
-#     return pd.DataFrame(metric_data).sort_index()

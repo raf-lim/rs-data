@@ -3,8 +3,8 @@ import pandas as pd
 from requests import HTTPError
 from db.base import engine
 from updaters.us.interfaces import DataType
-from updaters.us.fred import metrics
-from updaters.us.fred import collectors
+from updaters.us.fred import metrics, collectors
+from updaters.us import exceptions
 from libs import cleaners, statistics, helpers
 
 
@@ -20,9 +20,10 @@ def main_us(db_connection):
                 raw_data = collectors.fetch_constituent_data(
                     const_code, start_date
                     )
-                # logging.info(f"OK {metric.name}.{const_name}")
             except HTTPError as e:
                 logging.warning(f"Error {metric.name}.{const_name} {e}")
+            except exceptions.FredApiNoObservationsDataException:
+                logging.warning(f"Invalid data for {metric.name}.{const_name}")
                 continue
             data = collectors.parse_constituent_data(raw_data)
             const_name = const_name.replace(" ", "_").lower()
