@@ -86,3 +86,36 @@ class TestFetchConstituentData:
 
         with TestCase().assertRaises(requests.HTTPError):
             collectors.fetch_constituent_data("foo", "bar")
+
+
+class TestParseConstituentData:
+    
+    def test_correct_data_from_api_two_values(self):
+        raw_data = {
+            "key1": "val1",
+            "key2": "val2",
+            "observations": [
+                {"k1": "v1", "k2": "v2", "date": "2021-01-01", "value": "101.001"},
+                {"k1": "v1", "k2": "v2", "date": "2021-02-01", "value": "102.002"},
+                {"k1": "v1", "k2": "v2", "date": "2021-03-01", "value": "."},
+                ]
+            }
+        result = collectors.parse_constituent_data(raw_data)
+        expected = {"2021-01-01": 101.001, "2021-02-01": 102.002}
+
+        assert result == expected
+
+    def test_correct_data_from_api_but_empty(self):
+        raw_data = {
+            "key1": "val1",
+            "key2": "val2",
+            "observations": [
+                {"k1": "v1", "k2": "v2", "date": "2021-01-01", "value": "."},
+                {"k1": "v1", "k2": "v2", "date": "2021-02-01", "value": "."},
+                {"k1": "v1", "k2": "v2", "date": "2021-03-01", "value": "."},
+                ]
+            }
+        result = collectors.parse_constituent_data(raw_data)
+        expected = {}
+
+        assert result == expected
