@@ -1,5 +1,5 @@
 from os import getenv
-from datetime import datetime, date, timedelta
+import datetime
 import logging
 import requests
 from updaters.us.interfaces import Frequency
@@ -15,17 +15,21 @@ WEEKS_BACK= getenv("NUMBER_OF_WEEKS_WEEKLY_FREQ")
 
 
 def set_fred_api_start_date(
-        frequency: Frequency, start_date: str = START_DATE) -> str:
+        frequency: Frequency,
+        start_date: str = START_DATE,
+        days_back: str = DAYS_BACK,
+        weeks_back: str = WEEKS_BACK,
+) -> str:
     """
     Setting starting date for api endpoint
     depending on metric's data frequency.
     """
     if frequency == Frequency.DAILY:
-        start_date = date.today() - timedelta(days=int(DAYS_BACK))
-        return datetime.strftime(start_date, format="%Y-%m-%d")
+        start_date = datetime.date.today() - datetime.timedelta(days=int(days_back))
+        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
     elif frequency == Frequency.WEEKLY:
-        start_date = date.today() - timedelta(weeks=int(WEEKS_BACK))
-        return datetime.strftime(start_date, format="%Y-%m-%d")
+        start_date = datetime.date.today() - datetime.timedelta(weeks=int(weeks_back))
+        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
     
     return start_date 
 
@@ -49,7 +53,7 @@ def fetch_constituent_data(code: str, start_date: str) -> JSON:
 
 def parse_constituent_data(raw_data: JSON) -> dict[str, float]:
     """Parse US metric's constituent data from json response."""
-    if not "observations" in raw_data:
+    if not "observations" in raw_data or len(raw_data["observations"]) == 0:
         raise exceptions.FredApiNoObservationsDataException(
             "No observations data in FRED API response."
             )
