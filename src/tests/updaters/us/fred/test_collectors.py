@@ -4,6 +4,7 @@ import datetime
 import requests
 from updaters.us.interfaces import Frequency
 from updaters.us.fred import collectors
+from updaters.us import exceptions
 
 
 class TestSetFredApiStartDate:
@@ -119,3 +120,26 @@ class TestParseConstituentData:
         expected = {}
 
         assert result == expected
+
+    def test_incorrect_data_from_api_obaservations_empty(self):
+        raw_data = {
+            "key1": "val1",
+            "key2": "val2",
+            "observations": []
+            }
+
+        with TestCase().assertRaises(
+            exceptions.FredApiNoObservationsDataException
+            ):
+            collectors.parse_constituent_data(raw_data)
+
+    def test_incorrect_data_from_api_no_obaservations(self):
+        raw_data = {
+            "key1": "val1",
+            "key2": "val2",
+            }
+
+        with TestCase().assertRaises(
+            exceptions.FredApiNoObservationsDataException
+            ):
+            collectors.parse_constituent_data(raw_data)

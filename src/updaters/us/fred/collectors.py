@@ -53,7 +53,7 @@ def fetch_constituent_data(code: str, start_date: str) -> JSON:
 
 def parse_constituent_data(raw_data: JSON) -> dict[str, float]:
     """Parse US metric's constituent data from json response."""
-    if not "observations" in raw_data:
+    if not "observations" in raw_data or len(raw_data["observations"]) == 0:
         raise exceptions.FredApiNoObservationsDataException(
             "No observations data in FRED API response."
             )
