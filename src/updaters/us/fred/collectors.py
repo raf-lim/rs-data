@@ -1,10 +1,8 @@
 from os import getenv
-from datetime import datetime, date, timedelta
-from typing import Callable
+import datetime
 import logging
 import requests
-import pandas as pd
-from updaters.us.interfaces import Metric, Frequency
+from updaters.us.interfaces import Frequency
 logging.basicConfig(level=logging.INFO)
 
 
@@ -26,11 +24,11 @@ def set_fred_api_start_date(
     depending on metric's data frequency.
     """
     if frequency == Frequency.DAILY:
-        start_date = date.today() - timedelta(days=int(days_back))
-        return datetime.strftime(start_date, format="%Y-%m-%d")
+        start_date = datetime.date.today() - datetime.timedelta(days=int(days_back))
+        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
     elif frequency == Frequency.WEEKLY:
-        start_date = date.today() - timedelta(weeks=int(weeks_back))
-        return datetime.strftime(start_date, format="%Y-%m-%d")
+        start_date = datetime.date.today() - datetime.timedelta(weeks=int(weeks_back))
+        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
     
     return start_date 
 

@@ -1,5 +1,6 @@
 from unittest.mock import patch, MagicMock
 from unittest import TestCase
+import datetime
 import requests
 from updaters.us.interfaces import Frequency
 from updaters.us.fred import collectors
@@ -9,7 +10,7 @@ class TestSetFredApiStartDate:
 
     @patch("datetime.date")
     def test_frequency_daily(self, mock_date):
-        mock_date.today.return_value = "2023-11-01"
+        mock_date.today.return_value = datetime.datetime.strptime("2023-11-01", "%Y-%m-%d")
         result_date = collectors.set_fred_api_start_date(
             frequency=Frequency.DAILY,
             start_date="2020-01-01",
@@ -20,14 +21,14 @@ class TestSetFredApiStartDate:
 
     @patch("datetime.date")
     def test_frequency_weekly(self, mock_date):
-        mock_date.today.retutn_value = "2023-10-31"
+        mock_date.today.return_value = datetime.datetime.strptime("2023-10-31", "%Y-%m-%d")
         result_date = collectors.set_fred_api_start_date(
             frequency=Frequency.WEEKLY,
             start_date="2020-01-01",
             days_back="1",
             weeks_back="4",
         )
-        assert result_date == "2023-10-04"
+        assert result_date == "2023-10-03"
 
     @patch("datetime.date")
     def test_frequency_monthly(self, mock_date):
