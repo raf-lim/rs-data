@@ -22,13 +22,13 @@ services:
     build:
       context: .
       dockerfile: ./src/.compose/.local/Dockerfile
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8000:8000
     volumes:
       - ./src:/code
     env_file:
+      - ./src/.envs/.local/.postgres
       - .env
-      - ./src/.envs/.updater
     depends_on:
       - db
       # - cache
@@ -36,7 +36,7 @@ services:
       - db
     #   - cache
     container_name: rs-data
-    tty: true
+    tty: true  # to keep container running (no need if uvicorn runs)
 
 volumes:
   pg_data:
