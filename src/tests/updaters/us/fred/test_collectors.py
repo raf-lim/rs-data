@@ -1,11 +1,13 @@
 from unittest.mock import patch, MagicMock
 from unittest import TestCase
-import datetime
 import requests
+from sqlalchemy import create_engine, text, insert, select
+from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
+from db.base_class import Base
 from updaters.us.interfaces import Frequency
 from updaters.us.fred import collectors
 from updaters.us import exceptions
-
+from updaters.us.fred.metrics import Housing
 
 class TestSetLimitOfReadings:
     LIMIT_FRED_DAILY = "252"
@@ -36,6 +38,52 @@ class TestSetLimitOfReadings:
             frequency=Frequency.QUARTERLY,
         )
         assert limit == 40
+
+
+class HousingTable(Base):
+    __tablename__ = "us_housing_data"
+    date: Mapped[str] = mapped_column(primary_key=True)
+    permits: Mapped[float]
+    started: Mapped[float]
+    completed: Mapped[float]
+
+class TestFindLastMetricDataDateInDb:
+
+    def test_table_at_least_two_rows(self):
+        engine = create_engine("sqlite:///:memory:")
+        Session = sessionmaker(engine)
+        Base.metadata.create_all(engine)
+
+        with Session() as session:
+            session.execute(
+                insert(HousingTable),
+                [
+                    {
+                        "date": "2023-01-01",
+                        "permits": 100,
+                        "started": 200,
+                        "completed": 300
+                        },
+                    {
+                        "date": "2023-02-01",
+                        "permits": 101,
+                        "started": 201,
+                        "completed": 301
+                        },
+                    {
+                        "date": "2023-03-01",
+                        "permits": 102,
+                        "started": 202,
+                        "completed": 302
+                        },
+                        ]
+                        )
+            session.commit()
+
+        with Session().connection() as conn:
+            last_date = collectors.find_last_metric_data_date_in_db(Housing, conn)
+            
+        assert last_date == "2023-03-01"
 
 
 class TestFetchConstituentData:
