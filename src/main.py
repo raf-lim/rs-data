@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 from requests import HTTPError
+from sqlalchemy.exc import ProgrammingError
 from db.base import engine
 from updaters.us.interfaces import DataType
 from updaters.us.fred import metrics, collectors
@@ -8,19 +9,40 @@ from updaters.us import exceptions
 from libs import cleaners, statistics, helpers
 
 
-def main_us(db_connection):
+def main_us() -> None:
 
     for metric in metrics.selected_metrics:
-        limit = collectors.set_limit_of_readings(metric.frequency)
+        
+        # Check whether data in db table is up-to-date.
+        # If it is then no update for this metric.
+        try:
+            with engine.connect() as connection:
+                last_date_in_db = collectors.find_last_metric_data_date_in_db(
+                    metric, connection,
+                    )
+            name_of_first_constituent = tuple(metric.constituents.keys())[0]
+            last_date_in_api = collectors.fetch_constituent_data(
+                    name_of_first_constituent, limit=1,
+                    )["observations"][0]["date"]
+
+            if last_date_in_db == last_date_in_api:
+                continue
+
+        # In case of sqlalchemy error if table not exists program runs
+        # and create the table for the metric
+        except ProgrammingError as e:
+            logging.warning(f"No table for {metric.name}, message: {e}")
+            pass
+
+        readings_limit = collectors.set_limit_of_readings(metric.frequency)
 
         # Fetch and parse constituents data and gather into dataframe.
         metric_data: dict[str, dict[str, float]] = {}
         for const_code, const_name in metric.constituents.items():
             try:
                 raw_data = collectors.fetch_constituent_data(
-                    const_code, limit
+                    const_code, readings_limit
                     )
-                # logging.info(f"{metric.name}.{const_name} {len(raw_data['observations'])}")
             except HTTPError as e:
                 logging.warning(f"Error {metric.name}.{const_name} {e}")
             except exceptions.FredApiNoObservationsDataException:
@@ -41,7 +63,7 @@ def main_us(db_connection):
             clean_metric_data = helpers.compute_period_to_period_change(
                 metric=metric, data=metric_data,
                 )
-        
+            
         # Compute statistics of constituent series.
         stats = pd.DataFrame()
         for constituent in clean_metric_data.columns:
@@ -58,27 +80,27 @@ def main_us(db_connection):
         # Save metrics dataframes with
         # clean data and statistics in database.
         metric_name = metric.name.replace(" ", "_").lower()
-        
-        clean_metric_data.to_sql(
-            name=f"us_{metric_name}_data",
-            con=db_connection,
-            if_exists="replace",
-            index=True,
-            index_label="date"
-            )
+         
+        with engine.connect() as connection:
+            clean_metric_data.to_sql(
+                name=f"us_{metric_name}_data",
+                con=connection,
+                if_exists="replace",
+                index=True,
+                index_label="date"
+                )
 
-        stats.to_sql(
-            name=f"us_{metric_name}_stats",
-            con=db_connection,
-            if_exists="replace",
-            index=True,
-            index_label="metric"
-            )
-    
+            stats.to_sql(
+                name=f"us_{metric_name}_stats",
+                con=connection,
+                if_exists="replace",
+                index=True,
+                index_label="metric"
+                )
+            
+            connection.commit()
+        
 
 if __name__ == "__main__":
+    main_us()
 
-    with engine.connect() as connection:
-        main_us(connection)
-
-        connection.commit()
