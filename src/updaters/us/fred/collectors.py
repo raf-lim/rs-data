@@ -1,5 +1,4 @@
 from os import getenv
-import datetime
 import logging
 import requests
 from updaters.us.interfaces import Frequency
@@ -10,8 +9,10 @@ logging.basicConfig(level=logging.INFO)
 FRED_BASE_URL = getenv("FRED_BASE_URL")
 API_KEY = getenv("FRED_API_KEY")
 START_DATE = getenv("FRED_START_DATE")
-DAYS_BACK = getenv("NUMBER_OF_DAYS_DAILY_FREQ")
-WEEKS_BACK= getenv("NUMBER_OF_WEEKS_WEEKLY_FREQ")
+LIMIT_FRED_DAILY = getenv("LIMIT_FRED_DAILY")
+LIMIT_FRED_WEEKLY=getenv("LIMIT_FRED_WEEKLY")
+LIMIT_FRED_MONTHLY=getenv("LIMIT_FRED_MONTLY")
+LIMIT_FRED_QUARTERLY=getenv("LIMIT_FRED_QUARTERLY")
 
 
 def set_limit_of_readings(frequency: Frequency) -> int:
@@ -21,13 +22,13 @@ def set_limit_of_readings(frequency: Frequency) -> int:
     """
     match frequency:
         case Frequency.DAILY:
-            limit = LIMIT_FRED_DAILY
+            limit = int(LIMIT_FRED_DAILY)
         case Frequency.WEEKLY:
-            limit = LIMIT_FRED_WEEKLY
+            limit = int(LIMIT_FRED_WEEKLY)
         case Frequency.MONTHLY:
-            limit = LIMIT_FRED_MONTHLY
+            limit = int(LIMIT_FRED_MONTHLY)
         case Frequency.QUARTERLY:
-            limit = LIMIT_FRED_QUARTERLY
+            limit = int(LIMIT_FRED_QUARTERLY)
 
     return limit
 
