@@ -15,7 +15,7 @@ COPY pyproject.toml poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
-RUN poetry install --without dev,test,docs
+RUN poetry install --without dev,test
 COPY ./src .
 
 RUN chmod +x ./.compose/.production/entrypoint.sh
