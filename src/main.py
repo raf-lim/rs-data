@@ -11,15 +11,16 @@ from libs import cleaners, statistics, helpers
 def main_us(db_connection):
 
     for metric in metrics.selected_metrics:
-        start_date = collectors.set_fred_api_start_date(metric.frequency)
+        limit = collectors.set_limit_of_readings(metric.frequency)
 
         # Fetch and parse constituents data and gather into dataframe.
         metric_data: dict[str, dict[str, float]] = {}
         for const_code, const_name in metric.constituents.items():
             try:
                 raw_data = collectors.fetch_constituent_data(
-                    const_code, start_date
+                    const_code, limit
                     )
+                # logging.info(f"{metric.name}.{const_name} {len(raw_data['observations'])}")
             except HTTPError as e:
                 logging.warning(f"Error {metric.name}.{const_name} {e}")
             except exceptions.FredApiNoObservationsDataException:

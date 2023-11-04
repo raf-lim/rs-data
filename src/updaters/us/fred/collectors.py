@@ -1,5 +1,4 @@
 from os import getenv
-import datetime
 import logging
 import requests
 from updaters.us.interfaces import Frequency
@@ -10,40 +9,40 @@ logging.basicConfig(level=logging.INFO)
 FRED_BASE_URL = getenv("FRED_BASE_URL")
 API_KEY = getenv("FRED_API_KEY")
 START_DATE = getenv("FRED_START_DATE")
-DAYS_BACK = getenv("NUMBER_OF_DAYS_DAILY_FREQ")
-WEEKS_BACK= getenv("NUMBER_OF_WEEKS_WEEKLY_FREQ")
+LIMIT_FRED_DAILY = getenv("LIMIT_FRED_DAILY")
+LIMIT_FRED_WEEKLY=getenv("LIMIT_FRED_WEEKLY")
+LIMIT_FRED_MONTHLY=getenv("LIMIT_FRED_MONTHLY")
+LIMIT_FRED_QUARTERLY=getenv("LIMIT_FRED_QUARTERLY")
 
 
-def set_fred_api_start_date(
-        frequency: Frequency,
-        start_date: str = START_DATE,
-        days_back: str = DAYS_BACK,
-        weeks_back: str = WEEKS_BACK,
-) -> str:
+def set_limit_of_readings(frequency: Frequency) -> int:
     """
-    Setting starting date for api endpoint
+    Setting number of readings to be requested from API
     depending on metric's data frequency.
     """
-    if frequency == Frequency.DAILY:
-        start_date = datetime.date.today() - datetime.timedelta(days=int(days_back))
-        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
-    elif frequency == Frequency.WEEKLY:
-        start_date = datetime.date.today() - datetime.timedelta(weeks=int(weeks_back))
-        return datetime.datetime.strftime(start_date, format="%Y-%m-%d")
-    
-    return start_date 
+    match frequency:
+        case Frequency.DAILY:
+            limit = int(LIMIT_FRED_DAILY)
+        case Frequency.WEEKLY:
+            limit = int(LIMIT_FRED_WEEKLY)
+        case Frequency.MONTHLY:
+            limit = int(LIMIT_FRED_MONTHLY)
+        case Frequency.QUARTERLY:
+            limit = int(LIMIT_FRED_QUARTERLY)
+
+    return limit
 
 
 JSON = dict[str, str | int | float | list[dict[str | str]]]
 
 
-def fetch_constituent_data(code: str, start_date: str) -> JSON:
+def fetch_constituent_data(code: str, limit: int) -> JSON:
     """
     Get US metric's constituent data form Fred API.
     """
     url = (
         f"{FRED_BASE_URL}{code}&api_key={API_KEY}"
-        f"&observation_start={start_date}&file_type=json"
+        f"&sort_order=desc&limit={limit}&file_type=json"
         )
     response = requests.get(url, timeout=None)
     response.raise_for_status()

@@ -7,51 +7,35 @@ from updaters.us.fred import collectors
 from updaters.us import exceptions
 
 
-class TestSetFredApiStartDate:
+class TestSetLimitOfReadings:
+    LIMIT_FRED_DAILY = "252"
+    LIMIT_FRED_WEEKLY = "104"
+    LIMIT_FRED_MONTHLY = "60"
+    LIMIT_FRED_QUARTERLY = "40"
 
-    @patch("datetime.date")
-    def test_frequency_daily(self, mock_date):
-        mock_date.today.return_value = datetime.datetime.strptime("2023-11-01", "%Y-%m-%d")
-        result_date = collectors.set_fred_api_start_date(
+    def test_frequency_daily(self):
+        limit = collectors.set_limit_of_readings(
             frequency=Frequency.DAILY,
-            start_date="2020-01-01",
-            days_back="1",
-            weeks_back="4",
         )
-        assert result_date == "2023-10-31"
+        assert limit == 252
 
-    @patch("datetime.date")
-    def test_frequency_weekly(self, mock_date):
-        mock_date.today.return_value = datetime.datetime.strptime("2023-10-31", "%Y-%m-%d")
-        result_date = collectors.set_fred_api_start_date(
+    def test_frequency_weekly(self):
+        limit = collectors.set_limit_of_readings(
             frequency=Frequency.WEEKLY,
-            start_date="2020-01-01",
-            days_back="1",
-            weeks_back="4",
         )
-        assert result_date == "2023-10-03"
+        assert limit == 104
 
-    @patch("datetime.date")
-    def test_frequency_monthly(self, mock_date):
-        mock_date.today.return_value = "2023-11-01"
-        result_date = collectors.set_fred_api_start_date(
+    def test_frequency_monthly(self):
+        limit = collectors.set_limit_of_readings(
             frequency=Frequency.MONTHLY,
-            start_date="2020-01-01",
-            days_back="1",
-            weeks_back="4",
         )
-        assert result_date == "2020-01-01"
+        assert limit == 60
 
-    @patch("datetime.date")
-    def test_frequency_quarterly(self, mock_date):
-        mock_date.today.return_value = "2023-11-01"
-        result_date = collectors.set_fred_api_start_date(
+    def test_frequency_quarterly(self):
+        limit = collectors.set_limit_of_readings(
             frequency=Frequency.QUARTERLY,
-            start_date="2020-01-01",
-            days_back="1",
-            weeks_back="4",
         )
-        assert result_date == "2020-01-01"
+        assert limit == 40
 
 
 class TestFetchConstituentData:
