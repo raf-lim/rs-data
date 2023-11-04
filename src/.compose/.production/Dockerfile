@@ -15,11 +15,11 @@ COPY pyproject.toml poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
-RUN poetry install
+RUN poetry install --without dev,test,docs
 COPY ./src .
 
-RUN chmod +x ./.compose/.local/entrypoint.sh
-ENTRYPOINT [ "sh", "./.compose/.local/entrypoint.sh" ]
+RUN chmod +x ./.compose/.production/entrypoint.sh
+ENTRYPOINT [ "sh", "./.compose/.production/entrypoint.sh" ]
 
 # or
 # CMD sh ./.compose/.local/entrypoint.sh

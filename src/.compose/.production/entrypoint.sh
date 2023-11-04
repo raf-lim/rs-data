@@ -9,5 +9,4 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-# running process to keep the container alive:
-exec sh
+# exec "command" or e.g. uvicorn ...

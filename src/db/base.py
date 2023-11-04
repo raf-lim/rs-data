@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, URL
+from sqlalchemy import Engine, create_engine, URL
 
 
 DATABASE_URL = URL.create(
@@ -11,4 +11,4 @@ DATABASE_URL = URL.create(
     database=os.getenv("POSTGRES_DB"),
 )
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine: Engine = create_engine(DATABASE_URL, echo=False)
