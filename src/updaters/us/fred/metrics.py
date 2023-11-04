@@ -145,7 +145,7 @@ class Housing:
 
 class JobsNfp:
     code = 'jobs_nfp'
-    name = 'Jobs'
+    name = 'Jobs NFP'
     constituents = {
         'PAYEMS': 'NFP',
         'CES0500000011': 'Weekly Earnings'
@@ -157,7 +157,7 @@ class JobsNfp:
 
 class JobsUr:
     code = 'jobs_ur'
-    name = 'Jobs'
+    name = 'Jobs UR'
     constituents = {
         'UNRATE': 'UR',
         'CIVPART': 'Participation Rate'
