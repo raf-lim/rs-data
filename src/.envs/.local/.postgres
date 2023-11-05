@@ -2,6 +2,6 @@
 # ------------------------------------------
 POSTGRES_USER=rsdata
 POSTGRES_PASSWORD=rsdatapasswd
-POSTGRES_HOST=db
+POSTGRES_HOST=db # or db container name if external network set up.
 POSTGRES_PORT=5432
 POSTGRES_DB=rsdata

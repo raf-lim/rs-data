@@ -6,7 +6,7 @@ from db.base import engine
 from updaters.us.interfaces import DataType
 from updaters.us.fred import metrics, collectors
 from updaters.us import exceptions
-from libs import cleaners, statistics, helpers
+from updaters.libs import cleaners, statistics, helpers
 
 
 def main_us() -> None:
@@ -31,7 +31,6 @@ def main_us() -> None:
         # In case of sqlalchemy error if table not exists program runs
         # and create the table for the metric
         except ProgrammingError as e:
-            logging.warning(f"No table for {metric.name}, message: {e}")
             pass
 
         readings_limit = collectors.set_limit_of_readings(metric.frequency)
