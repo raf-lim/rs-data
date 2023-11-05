@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-WORKDIR /code
+WORKDIR /app
 
 # update linux packages and
 # install psql to have the possibility to connect db
@@ -16,10 +16,10 @@ RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
 RUN poetry install --without dev,test
-COPY ./src/api .
+COPY src/api .
 
 RUN chmod +x ./.compose/.production/entrypoint.sh
 ENTRYPOINT [ "sh", "./.compose/.production/entrypoint.sh" ]
 
 # or
-# CMD sh ./.compose/.local/entrypoint.sh
+# CMD sh ./.compose/.production/entrypoint.sh

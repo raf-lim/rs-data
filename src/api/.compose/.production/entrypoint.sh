@@ -10,3 +10,6 @@ done
 >&2 echo "Postgres is up - executing command"
 
 # exec "command" or e.g. uvicorn ...
+
+# Below doen't work on railway.app
+# exec uvicorn main:app --host 0.0.0.0 --port ${PORT}
