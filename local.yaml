@@ -30,7 +30,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./src/api:/code
+      - ./src/api:/app
     env_file:
       - ./src/.envs/.local/.api
       - ./src/.envs/.local/.postgres
@@ -51,7 +51,7 @@ services:
       dockerfile: ./src/updater/.compose/.local/Dockerfile
     image: rs-data-updater
     volumes:
-      - ./src/updater:/code
+      - ./src/updater:/app
     env_file:
       - ./src/.envs/.local/.postgres
       - .env

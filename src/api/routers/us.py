@@ -8,7 +8,9 @@ router_us = APIRouter(prefix="/us", tags=["us"])
 
 
 @router_us.get("/metrics")
-async def get_metrics_data_endpoints(db = Depends(get_db)) -> dict[str, str]:
+async def get_metrics_data_endpoints(
+    db: Session = Depends(get_db),
+    ) -> dict[str, str]:
     return us.create_endpoints_to_metrics_data(db)
 
 
