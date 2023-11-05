@@ -11,12 +11,12 @@ RUN apt-get update && apt-get install -y postgresql-client
 ENV PYTHONPATH=${PYTHONPATH}:${PWD}
 
 # install poetry and dependencies
-COPY pyproject.toml poetry.lock ./
+COPY src/updater/pyproject.toml src/updater/poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
 RUN poetry install
-COPY ./src .
+COPY ./src/updater .
 
 RUN chmod +x ./.compose/.local/entrypoint.sh
 ENTRYPOINT [ "sh", "./.compose/.local/entrypoint.sh" ]

@@ -6,7 +6,7 @@ from db.base import engine
 from updaters.us.interfaces import DataType
 from updaters.us.fred import metrics, collectors
 from updaters.us import exceptions
-from libs import cleaners, statistics, helpers
+from updaters.libs import cleaners, statistics, helpers
 
 
 def main_us() -> None:

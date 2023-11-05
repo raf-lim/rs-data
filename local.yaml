@@ -1,0 +1,71 @@
+version: "3.8"
+
+volumes:
+  pg_data:
+#   cache_data:
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - ./src/updater/.envs/.local/.postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    container_name: rs-data-db
+  
+  # cache:
+  #   image: redis
+  #   volumes:
+  #     - cache_data:/data/
+  #   container_name: cache-rs-data
+
+  #api:
+    #build:
+      #context: .
+      #dockerfile: ./src/.compose/.local/Dockerfile
+    #image: rs-data-api
+    #ports:
+      #- 8000:8000
+    #volumes:
+      #- ./src:/code
+    #env_file:
+      #- ./src/.envs/.local/.app
+      #- ./src/.envs/.local/.postgres
+      #- .env
+     #depends_on:
+       #- db
+      ## - cache
+     #links:
+       #- db
+      ## - cache
+    ## networks:
+    ##   - rs-data_default
+    #container_name: rs-data-api
+      
+  updater:
+    build:
+      context: .
+      dockerfile: ./src/updater/.compose/.local/Dockerfile
+    image: rs-data-updater
+    # ports:
+    #   - 8000:8000
+    volumes:
+      - ./src/updater:/code
+    env_file:
+      - ./src/updater/.envs/.local/.postgres
+      - .env
+    depends_on:
+      - db
+      # - cache
+    links:
+      - db
+    #   - cache
+    container_name: rs-data-updater
+    tty: true  # to keep container running (no need if uvicorn runs)
+
+# networks:
+#   rs-data_default:
+#     external: true
