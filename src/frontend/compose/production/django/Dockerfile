@@ -24,12 +24,6 @@ RUN pip3 install --upgrade pip \
   && poetry config virtualenvs.create false
 RUN poetry install --without dev,django-dev,test,docs,quality
 
-# TODO: REMOVE ENV VAR FROM HERE !!!
-ENV DJANGO_SETTINGS_MODULE=config.settings.production
-ENV DJANGO_SECRET_KEY=your_secret_key
-ENV DJANGO_ADMIN_URL=/admin-rs
-ENV USE_S3=0
-
 # RUN addgroup --system django \
 #     && adduser --system --ingroup django django
 
