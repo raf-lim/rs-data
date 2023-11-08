@@ -7,6 +7,7 @@ volumes:
 services:
   db:
     image: postgres
+    container_name: rs-data-postgres-local
     restart: unless-stopped
     env_file:
       - ./src/.envs/.local/.postgres
@@ -14,7 +15,7 @@ services:
       - 5432:5432
     volumes:
       - pg_data:/var/lib/postgresql/data/
-    container_name: rs-data-db
+      
   
   # cache:
   #   image: redis
@@ -26,7 +27,8 @@ services:
     build:
       context: .
       dockerfile: ./src/api/.compose/.local/Dockerfile
-    image: rs-data-api
+    image: rs-data-api-local
+    container_name: rs-data-api-local
     ports:
       - 8000:8000
     volumes:
@@ -43,13 +45,14 @@ services:
     # - cache
     # networks:
     #   - rs-data_default
-    container_name: rs-data-api
+    
       
   updater:
     build:
       context: .
       dockerfile: ./src/updater/.compose/.local/Dockerfile
-    image: rs-data-updater
+    image: rs-data-updater-local
+    container_name: rs-data-updater-local
     volumes:
       - ./src/updater:/app
     env_file:
@@ -61,8 +64,24 @@ services:
     links:
       - db
     #   - cache
-    container_name: rs-data-updater
     tty: true  # to keep container running (no need if uvicorn runs)
+
+  django:
+    build:
+      context: .
+      dockerfile: ./src/frontend/compose/local/django/Dockerfile
+    image: rs-data-frontend-django-local
+    container_name: rs-data-frontend-django-local
+    depends_on:
+      - db
+    volumes:
+      - ./src/frontend:/app:z
+    env_file:
+      - ./src/.envs/.local/.frontend
+      - ./src/.envs/.local/.postgres
+    ports:
+      - '5000:5000'
+    command: /start
 
 # networks:
 #   rs-data_default:
