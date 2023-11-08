@@ -69,15 +69,15 @@ services:
   django:
     build:
       context: .
-      dockerfile: ./src/frontend/compose/local/django/Dockerfile
-    image: rs-data-frontend-django-local
-    container_name: rs-data-frontend-django-local
-    depends_on:
-      - db
-    volumes:
-      - ./src/frontend:/app:z
+      dockerfile: ./src/frontend/compose/production/django/Dockerfile
+    image: rs-data-frontend-django-production
+    container_name: rs-data-frontend-django-production
+    # depends_on:
+    #   - db
+    # volumes:
+    #   - ./src/frontend:/app:z
     env_file:
-      - ./src/.envs/.local/.frontend
+    #   - ./src/.envs/.local/.frontend
       - ./src/.envs/.local/.postgres
     ports:
       - '5000:5000'
