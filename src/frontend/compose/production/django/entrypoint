@@ -43,4 +43,6 @@ END
 
 >&2 echo 'PostgreSQL is available'
 
-exec "$@"
+# exec "$@"
+
+exec ./start
