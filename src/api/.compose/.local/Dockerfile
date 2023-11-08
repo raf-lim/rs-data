@@ -16,6 +16,7 @@ RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
 RUN poetry install
+
 COPY src/api .
 
 RUN chmod +x ./.compose/.local/entrypoint.sh
