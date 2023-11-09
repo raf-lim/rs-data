@@ -26,7 +26,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 COPY src/frontend .
 
-RUN mv ./compose/production/django/entrypoint /entrypoint \
+RUN mv ./compose/local/django/entrypoint /entrypoint \
   && sed -i 's/\r$//g' /entrypoint \
   && chmod +x /entrypoint
 
