@@ -15,3 +15,4 @@ DJANGO_ACCOUNT_EMAIL_REQUIRED=True
 # Literal["mandatory", "optional", "none"]
 # "mandatory" requires ACCOUNT_EMAIL_REQUIRED=True
 DJANGO_ACCOUNT_EMAIL_VERIFICATION="none"
+

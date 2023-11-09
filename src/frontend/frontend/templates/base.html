@@ -61,6 +61,7 @@
                 aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <a class="navbar-brand" href="{% url 'home' %}">rs-data</a>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -127,7 +128,7 @@
         </div>
       {% endfor %}
     {% endif %}
-
+    
     {% block content %}
       <p>Use this document as a way to quick start any new project.</p>
     {% endblock content %}

@@ -253,6 +253,7 @@ LOGGING = {
     "root": {"level": "INFO", "handlers": ["console"]},
 }
 
+
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
