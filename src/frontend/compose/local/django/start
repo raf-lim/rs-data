@@ -5,5 +5,5 @@ set -o pipefail
 set -o nounset
 
 
-python manage.py migrate
-exec uvicorn config.asgi:application --host 0.0.0.0 --port 5000 --reload --reload-include '*.html'
+python manage.py migrate && python manage.py runserver 0.0.0.0:5000
+# exec uvicorn config.asgi:application --bind 0.0.0.0:5000 --reload --reload-include '*.html'
