@@ -1,20 +1,20 @@
 from typing import Protocol, Optional
-from enum import Enum, auto
+from enum import StrEnum, auto
 
 
-class Frequency(Enum):
+class Frequency(StrEnum):
     DAILY = auto()
     WEEKLY = auto()
     MONTHLY = auto()
     QUARTERLY = auto()
 
 
-class DataType(Enum):
+class DataType(StrEnum):
     INDEX = auto()
     CHANGE = auto()
 
 
-class StatsType(Enum):
+class StatsType(StrEnum):
     DIFFERENCE = auto()
     CHANGE = auto()
 
