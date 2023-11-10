@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load macro_us_extras %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+
+  <h5 class="mb-3">Housing</h5>
+
+  {% if housing %}
+      <div class="pb-3">
+          {% autoescape off %}
+              <p>{{ housing }}</p>
+          {% endautoescape %}
+      </div>
+  {% endif %}
+
+  <div class="pt-3">
+      <a href="#" class="btn btn-outline-secondary">Back to Top</a>
+  </div>
+</div>
+
+{% endblock %}
