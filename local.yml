@@ -9,8 +9,14 @@ services:
     image: postgres
     container_name: rs-data-postgres-local
     restart: unless-stopped
-    env_file:
-      - ./src/.envs/.local/.postgres
+    # env_file:
+    #   - ./src/.envs/.local/.postgres
+    environment:
+      - DATABASE_USER=rsdata
+      - DATABASE_PASSWORD=rsdatapasswd
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_DB=rsdata
     ports:
       - 5432:5432
     volumes:
@@ -34,14 +40,14 @@ services:
     volumes:
       - ./src/api:/app
     env_file:
-      - ./src/.envs/.local/.api
-      - ./src/.envs/.local/.postgres
+      - ./src/api/.envs/.local/.app
+      - ./src/api/.envs/.local/.postgres
       - .env
     depends_on:
       - db
     # - cache
-    links:
-      - db
+    # links:
+    #   - db
     # - cache
     # networks:
     #   - rs-data_default
@@ -56,13 +62,14 @@ services:
     volumes:
       - ./src/updater:/app
     env_file:
-      - ./src/.envs/.local/.postgres
+      - ./src/updater/.envs/.local/.app
+      - ./src/updater/.envs/.local/.postgres
       - .env
     depends_on:
       - db
       # - cache
-    links:
-      - db
+    # links:
+    #   - db
     #   - cache
     tty: true  # to keep container running (no need if uvicorn runs)
 
@@ -77,8 +84,8 @@ services:
     volumes:
       - ./src/frontend:/app:z
     env_file:
-      - ./src/.envs/.local/.frontend
-      - ./src/.envs/.local/.postgres
+      - ./src/frontend/.envs/.local/.django
+      - ./src/frontend/.envs/.local/.postgres
     ports:
       - '5000:5000'
     command: /start
