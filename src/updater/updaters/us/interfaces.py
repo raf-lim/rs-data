@@ -1,5 +1,6 @@
-from typing import Protocol, Optional
+from typing import Optional
 from enum import StrEnum, auto
+from pydantic import BaseModel
 
 
 class Frequency(StrEnum):
@@ -19,7 +20,17 @@ class StatsType(StrEnum):
     CHANGE = auto()
 
 
-class Metric(Protocol):
+# class Metric(Protocol):
+    # """Represents interface of US metric."""
+    # code: str
+    # name: str
+    # constituents: Optional[dict[str, str]]
+    # frequency: str
+    # data: Optional[DataType]
+    # stats: Optional[StatsType]
+
+
+class UsMetric(BaseModel):
     """Represents interface of US metric."""
     code: str
     name: str
