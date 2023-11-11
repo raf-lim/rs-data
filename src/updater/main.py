@@ -1,3 +1,4 @@
+import os
 import logging
 import pandas as pd
 from requests import HTTPError
@@ -11,7 +12,10 @@ from updaters.libs import cleaners, statistics, helpers
 
 def main_us() -> None:
 
-    for metric in metrics.selected_metrics:
+    plugins_path = os.path.join("updaters/us/fred/metrics_plugins")
+    selected_metrics = metrics.get_metrics_from_plugins(plugins_path)
+
+    for metric in selected_metrics:
         
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
@@ -26,6 +30,7 @@ def main_us() -> None:
                     )["observations"][0]["date"]
 
             if last_date_in_db == last_date_in_api:
+                print(metric.name)
                 continue
 
         # In case of sqlalchemy error if table not exists program runs
