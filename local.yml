@@ -2,7 +2,7 @@ version: "3.8"
 
 volumes:
   pg_data:
-#   cache_data:
+#  cache_data:
 
 services:
   db:
@@ -10,7 +10,7 @@ services:
     container_name: rs-data-postgres-local
     restart: unless-stopped
     # env_file:
-    #   - ./src/.envs/.local/.postgres
+    #  - ./src/.envs/.local/.postgres
     environment:
       - DATABASE_USER=rsdata
       - DATABASE_PASSWORD=rsdatapasswd
@@ -62,8 +62,8 @@ services:
     depends_on:
       - db
     # - cache
-    networks:
-      - rs-data_default
+    # networks:
+      # - rs-data_default
     
   django:
     build:
