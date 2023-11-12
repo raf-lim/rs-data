@@ -2,7 +2,7 @@ from os import getenv
 import logging
 import requests
 from sqlalchemy import Connection, text
-from updaters.us.interfaces import Frequency, Metric
+from updaters.us.interfaces import Frequency, UsMetric
 from updaters.us import exceptions
 logging.basicConfig(level=logging.INFO)
 
@@ -35,7 +35,7 @@ def set_limit_of_readings(frequency: Frequency) -> int:
 
 
 def find_last_metric_data_date_in_db(
-        metric: Metric, db_connection: Connection,
+        metric: UsMetric, db_connection: Connection,
         ) -> str:
     """Get last date from metric's data table in database."""
     table_name = f"us_{metric.name.replace(' ', '_')}_data".lower()

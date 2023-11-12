@@ -74,7 +74,7 @@
                 Macro
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="{% url 'home' %}">US Overview</a></li>
+                <li><a class="dropdown-item" href="{% url 'macro_us:macro_us_metrics' %}">US Metrics</a></li>
                 <li><a class="dropdown-item" href="{% url 'home' %}">US Overview</a></li>
 
                 <li><hr class="dropdown-divider"></li>
@@ -128,7 +128,7 @@
         </div>
       {% endfor %}
     {% endif %}
-    
+
     {% block content %}
       <p>Use this document as a way to quick start any new project.</p>
     {% endblock content %}

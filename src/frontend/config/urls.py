@@ -15,6 +15,7 @@ urlpatterns = [
     path("users/", include("frontend.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+    path("macro_us/", include("frontend.macro_us.urls", namespace="macro_us")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
