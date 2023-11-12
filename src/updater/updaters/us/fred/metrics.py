@@ -1,5 +1,8 @@
 import os
 import importlib
+from typing import AnyStr
+from sqlalchemy import Connection, text
+import pandas as pd
 from updaters.us.interfaces import UsMetric
 
 
@@ -18,3 +21,28 @@ def get_metrics_from_plugins(plugins_path: str) -> list[UsMetric]:
             metrics.append(metric_plugin.Metric())
 
     return metrics
+
+
+def extract_metric_metadata(metric: UsMetric) -> dict[str, AnyStr]:
+    """Creates dict with selected US metric descriptors."""
+    metric_metadata = {
+        "code": metric.code,
+        "name": metric.name,
+        "frequency": metric.frequency,
+        "data": metric.data,
+        "stats": metric.stats,
+    }
+
+    return metric_metadata
+
+
+def find_last_metric_data_date_in_db(
+        metric: UsMetric, db_connection: Connection,
+        ) -> str:
+    """Get last date from metric's data table in database."""
+    table_name = f"us_{metric.name.replace(' ', '_')}_data".lower()
+    last_date = db_connection.scalar(
+        text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
+        )
+        
+    return last_date
