@@ -2,7 +2,7 @@ version: "3.8"
 
 volumes:
   pg_data:
-#   cache_data:
+#  cache_data:
 
 services:
   db:
@@ -10,7 +10,7 @@ services:
     container_name: rs-data-postgres-local
     restart: unless-stopped
     # env_file:
-    #   - ./src/.envs/.local/.postgres
+    #  - ./src/.envs/.local/.postgres
     environment:
       - DATABASE_USER=rsdata
       - DATABASE_PASSWORD=rsdatapasswd
@@ -21,13 +21,29 @@ services:
       - 5432:5432
     volumes:
       - pg_data:/var/lib/postgresql/data/
-      
   
   # cache:
   #   image: redis
   #   volumes:
   #     - cache_data:/data/
   #   container_name: cache-rs-data
+      
+  updater:
+    build:
+      context: .
+      dockerfile: ./src/updater/.compose/.local/Dockerfile
+    image: rs-data-updater
+    container_name: rs-data-updater-local
+    volumes:
+      - ./src/updater:/app
+    env_file:
+      - ./src/updater/.envs/.local/.app
+      - ./src/updater/.envs/.local/.postgres
+      - .env
+    depends_on:
+      - db
+      # - cache
+    tty: true  # to keep container running (no need if uvicorn runs)
 
   api:
     build:
@@ -46,12 +62,8 @@ services:
     depends_on:
       - db
     # - cache
-    # links:
-    #   - db
-    # - cache
     # networks:
     #   - rs-data_default
-    
       
   updater:
     build:
@@ -68,9 +80,6 @@ services:
     depends_on:
       - db
       # - cache
-    # links:
-    #   - db
-    #   - cache
     tty: true  # to keep container running (no need if uvicorn runs)
 
   django:
@@ -88,8 +97,12 @@ services:
       - ./src/frontend/.envs/.local/.postgres
     ports:
       - '5000:5000'
+    # networks:
+      # - rs-data_default
     command: /start
 
 # networks:
-#   rs-data_default:
-#     external: true
+  # rs-data_default: # this network is created autmatically for the project
+    # so not need to add it to the services within the project.
+    # external: true # Used when network already exists and this network in not
+    # created.

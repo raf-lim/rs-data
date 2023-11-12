@@ -35,6 +35,6 @@ class UsMetric(BaseModel):
     code: str
     name: str
     constituents: Optional[dict[str, str]]
-    frequency: str
+    frequency: Frequency
     data: Optional[DataType]
     stats: Optional[StatsType]
