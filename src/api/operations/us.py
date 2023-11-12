@@ -74,6 +74,19 @@ def get_metric_statistics_from_db(
 
     return data.to_dict()
 
+def get_metric_metadata_from_db(
+        metric_code: str,
+        db: Session,
+    ) -> dict[str, dict[str, str]]:
+    """Get metric's metadata from database."""
+    with db.connection() as conn:
+        res = db.scalars(text(f"""
+            SELECT * FROM us_metrics_metadata
+            WHERE code = :metric_code"""
+            ), {"metric_code": metric_code}
+            )
+
+    return res.to_dict()
 
 def get_metric_all_info_from_db(
         metric_name: str,

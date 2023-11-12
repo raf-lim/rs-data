@@ -15,6 +15,22 @@ async def get_metrics_data_endpoints(
 
 
 @router_us.get("/metric/{metric}")
+async def get_metric_data_and_statistics(
+    metric: str, limit: int = 0, db: Session = Depends(get_db),
+    ) -> dict[str, dict[str, dict[str, float | None]]]:
+    
+    return us.get_metric_all_info_from_db(metric, limit, db)
+
+
+@router_us.get("/metric/{metric_code}/metadata")
+async def get_metric_metadata(
+    metric_code, db: Session = Depends(get_db),
+    ):
+
+    return us.get_metric_metadata_from_db(metric_code, db)
+
+
+@router_us.get("/metric/{metric}/data")
 async def get_metric_data(
     metric: str, limit: int = 0, db: Session = Depends(get_db)
     ) -> dict[str, dict[str, float | None]]:
@@ -30,9 +46,3 @@ async def get_metric_statistics(
     return us.get_metric_statistics_from_db(metric, db)
 
 
-@router_us.get("/metric/{metric}/all")
-async def get_metric_data_and_statistics(
-    metric: str, limit: int = 0, db: Session = Depends(get_db),
-    ) -> dict[str, dict[str, dict[str, float | None]]]:
-    
-    return us.get_metric_all_info_from_db(metric, limit, db)
