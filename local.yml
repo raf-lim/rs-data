@@ -64,23 +64,6 @@ services:
     # - cache
     # networks:
     #   - rs-data_default
-      
-  updater:
-    build:
-      context: .
-      dockerfile: ./src/updater/.compose/.local/Dockerfile
-    image: rs-data-updater
-    container_name: rs-data-updater-local
-    volumes:
-      - ./src/updater:/app
-    env_file:
-      - ./src/updater/.envs/.local/.app
-      - ./src/updater/.envs/.local/.postgres
-      - .env
-    depends_on:
-      - db
-      # - cache
-    tty: true  # to keep container running (no need if uvicorn runs)
 
   django:
     build:
