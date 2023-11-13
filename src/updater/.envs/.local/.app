@@ -1,6 +1,3 @@
-# APP
-US_METRICS_PLUGINS_PATH=updaters/us/fred/metrics_plugins
-
 # PostgreSQL
 # ------------------------------------------
 POSTGRES_USER=rsdata
