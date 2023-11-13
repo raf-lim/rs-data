@@ -23,10 +23,8 @@ def main_us() -> None:
 
     for metric in selected_metrics:
         
-        metric_name = metric.name.replace(" ", "_").lower()
-        
         metrics_metadata.update(
-            {metric.name: metrics.extract_metric_metadata(metric)}
+            {metric.code: metrics.extract_metric_metadata(metric)}
             )
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
@@ -97,7 +95,7 @@ def main_us() -> None:
         with engine.connect() as connection:
 
             clean_metric_data.to_sql(
-                name=f"us_{metric_name}_data",
+                name=f"us_{metric.code}_data",
                 con=connection,
                 if_exists="replace",
                 index=True,
@@ -105,7 +103,7 @@ def main_us() -> None:
                 )
 
             stats.to_sql(
-                name=f"us_{metric_name}_stats",
+                name=f"us_{metric.code}_stats",
                 con=connection,
                 if_exists="replace",
                 index=True,
@@ -114,16 +112,19 @@ def main_us() -> None:
             
             connection.commit()
 
+    # Create and save table with all metrics metadata.
     metrics_metadata_table = (
         pd.DataFrame(metrics_metadata)
-    ).transpose()
+        ).transpose()
+    
+    print(metrics_metadata_table)
 
     with engine.connect() as connection:
         metrics_metadata_table.to_sql(
             name="us_metrics_metadata",
             con=connection,
             if_exists="replace",
-            index=True,
+            index=False,
         )
         connection.commit()
 
