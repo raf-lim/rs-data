@@ -3,6 +3,9 @@
 USE_DOCKER="yes"
 IPYTHONDIR="/app/.ipython"
 
+# API
+API_BASE_URL="http://rs-data-api-local:8000"
+
 # Django
 USE_S3=0
 

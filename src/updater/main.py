@@ -1,4 +1,6 @@
+import os
 import logging
+from typing import AnyStr
 import pandas as pd
 from requests import HTTPError
 from sqlalchemy.exc import ProgrammingError
@@ -8,16 +10,27 @@ from updaters.us.fred import metrics, collectors
 from updaters.us import exceptions
 from updaters.libs import cleaners, statistics, helpers
 
+US_METRICS_PLUGINS_PATH = os.getenv("US_METRICS_PLUGINS_PATH")
+
 
 def main_us() -> None:
 
-    for metric in metrics.selected_metrics:
+    selected_metrics = (
+        metrics.get_metrics_from_plugins(US_METRICS_PLUGINS_PATH)
+        )
+
+    metrics_metadata: dict[str, dict[str, AnyStr]] = {}
+
+    for metric in selected_metrics:
         
+        metrics_metadata.update(
+            {metric.code: metrics.extract_metric_metadata(metric)}
+            )
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
         try:
             with engine.connect() as connection:
-                last_date_in_db = collectors.find_last_metric_data_date_in_db(
+                last_date_in_db = metrics.find_last_metric_data_date_in_db(
                     metric, connection,
                     )
             name_of_first_constituent = tuple(metric.constituents.keys())[0]
@@ -78,11 +91,11 @@ def main_us() -> None:
 
         # Save metrics dataframes with
         # clean data and statistics in database.
-        metric_name = metric.name.replace(" ", "_").lower()
-         
+        
         with engine.connect() as connection:
+
             clean_metric_data.to_sql(
-                name=f"us_{metric_name}_data",
+                name=f"us_{metric.code}_data",
                 con=connection,
                 if_exists="replace",
                 index=True,
@@ -90,7 +103,7 @@ def main_us() -> None:
                 )
 
             stats.to_sql(
-                name=f"us_{metric_name}_stats",
+                name=f"us_{metric.code}_stats",
                 con=connection,
                 if_exists="replace",
                 index=True,
@@ -98,7 +111,20 @@ def main_us() -> None:
                 )
             
             connection.commit()
-        
+
+    # Create and save table with all metrics metadata.
+    metrics_metadata_table = (
+        pd.DataFrame(metrics_metadata)
+        ).transpose()
+    
+    with engine.connect() as connection:
+        metrics_metadata_table.to_sql(
+            name="us_metrics_metadata",
+            con=connection,
+            if_exists="replace",
+            index=False,
+        )
+        connection.commit()
 
 if __name__ == "__main__":
     main_us()
