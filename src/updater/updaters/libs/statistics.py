@@ -34,13 +34,9 @@ def compute_statistics(
     
     statistics = {}
     statistics["precentile"] = percentile
-    statistics["average(3)"] = average_L3
-    statistics["average(6)"] = average_L6
-    statistics["average(1Y)"] = average_1Y
     statistics["last vs previous"] = last_vs_previous
     statistics["last vs LY"] = last_vs_last_year
     statistics["last-average(3)"] = last - average_L3
-    statistics["last-average(6)"] = last - average_L6
     statistics["last-average(1Y)"] = last - average_1Y
 
 
