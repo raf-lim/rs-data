@@ -76,43 +76,48 @@ class MetricTableStyler:
 
     def style_table_index_with_difference_stats(self):
         """Style "difference" table with data of one metric for all countries."""
-        df_styled = self.df.style \
-            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-4])) \
-            .applymap(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-4:-2])) \
-            .applymap(lambda x: 'color : white; background-color : green' if x == 'above' else '') \
-            .applymap(lambda x: 'color : white; background-color : red' if x == 'below' else '') \
-            .format("{:,.2f}", subset=(self.df_index, self.df_columns[:-1])) \
-            .format("{:,.0%}", subset=(self.df_index, self.df_columns == 'percentile')) \
+        df_styled = (
+            self.df.style
+            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-5]))
+            .map(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-4:]))
+            .map(lambda x: 'color : white; background-color : green' if x == 'above' else '')
+            .map(lambda x: 'color : white; background-color : red' if x == 'below' else '')
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[:-5]))
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-4:]))
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-5]))
             .set_table_styles(pd_css_styles)
+            )
 
         return df_styled
 
     def style_table_index_with_change_stats(self):
         """Style "difference" table with data of one metric for all countries."""
-        df_styled = self.df.style \
-            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-9])) \
-            .map(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-9:-2])) \
-            .map(lambda x: 'color : white; background-color : green' if x == 'above' else '') \
-            .map(lambda x: 'color : white; background-color : red' if x == 'below' else '') \
-            .format("{:,.2f}", subset=(self.df_index, self.df_columns[:-9])) \
-            .format("{:,.2%}", subset=(self.df_index, self.df_columns[-5:-3])) \
-            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-9:-5])) \
-            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-5:])) \
-            .format("{:,.0%}", subset=(self.df_index, self.df_columns == 'percentile')) \
+        df_styled = (
+            self.df.style
+            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-5]))
+            .map(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-4:]))
+            .map(lambda x: 'color : white; background-color : green' if x == 'above' else '')
+            .map(lambda x: 'color : white; background-color : red' if x == 'below' else '')
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[:-5]))
+            .format("{:,.2%}", subset=(self.df_index, self.df_columns[-4:]))
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-5]))
             .set_table_styles(pd_css_styles)
+            )
 
         return df_styled
 
     def style_table_change_with_difference_stats(self):
         """Style "ratio" table with data of one metric for all countries."""
-        df_styled = self.df.style \
-            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-4])) \
-            .applymap(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-4:-2])) \
-            .applymap(lambda x: 'color : white; background-color : green' if x == 'above' else '') \
-            .applymap(lambda x: 'color : white; background-color : red' if x == 'below' else '') \
-            .format("{:,.1%}", subset=(self.df_index, self.df_columns[:-1])) \
-            .format("{:,.1%}", subset=(self.df_index, self.df_columns[-4:-2])) \
-            .format("{:,.0%}", subset=(self.df_index, self.df_columns == 'percentile')) \
+        df_styled = (
+            self.df.style
+            .background_gradient(cmap='RdYlGn', axis=1, low=0.4, high=0.4, subset=(self.df_columns[:-5]))
+            .map(ColorTable().positive_green_negative_red_text, subset=(self.df_columns[-4:]))
+            .map(lambda x: 'color : white; background-color : green' if x == 'above' else '')
+            .map(lambda x: 'color : white; background-color : red' if x == 'below' else '')
+            .format("{:,.2%}", subset=(self.df_index, self.df_columns[:-5]))
+            .format("{:,.2%}", subset=(self.df_index, self.df_columns[-4:]))
+            .format("{:,.2f}", subset=(self.df_index, self.df_columns[-5]))
             .set_table_styles(pd_css_styles)
+            )
 
         return df_styled
