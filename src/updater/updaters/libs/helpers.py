@@ -46,8 +46,8 @@ def compute_period_to_period_change(
 
     constituents_data: list[pd.DataFrame] = []
     for col in data.columns:
-        col_t = f'{col} {t_suffix}'
-        col_y = f'{col} yoy'
+        col_t = f'{col}_{t_suffix}'
+        col_y = f'{col}_yoy'
 
         if metric.frequency == Frequency.WEEKLY:
             data[col_t] = data[col].pct_change(periods=m_interval)

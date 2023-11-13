@@ -1,15 +1,13 @@
 from os import getenv
 import logging
 import requests
-from sqlalchemy import Connection, text
-from updaters.us.interfaces import Frequency, Metric
+from updaters.us.interfaces import Frequency
 from updaters.us import exceptions
 logging.basicConfig(level=logging.INFO)
 
 
 FRED_BASE_URL = getenv("FRED_BASE_URL")
 API_KEY = getenv("FRED_API_KEY")
-START_DATE = getenv("FRED_START_DATE")
 LIMIT_FRED_DAILY = getenv("LIMIT_FRED_DAILY")
 LIMIT_FRED_WEEKLY=getenv("LIMIT_FRED_WEEKLY")
 LIMIT_FRED_MONTHLY=getenv("LIMIT_FRED_MONTHLY")
@@ -32,18 +30,6 @@ def set_limit_of_readings(frequency: Frequency) -> int:
             limit = int(LIMIT_FRED_QUARTERLY)
 
     return limit
-
-
-def find_last_metric_data_date_in_db(
-        metric: Metric, db_connection: Connection,
-        ) -> str:
-    """Get last date from metric's data table in database."""
-    table_name = f"us_{metric.name.replace(' ', '_')}_data".lower()
-    last_date = db_connection.scalar(
-        text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
-        )
-        
-    return last_date
 
 
 JSON = dict[str, str | int | float | list[dict[str | str]]]

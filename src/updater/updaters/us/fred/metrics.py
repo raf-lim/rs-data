@@ -1,262 +1,47 @@
-# US macroeconomy metrics from FRED.
-from updaters.us.interfaces import Metric, Frequency, DataType, StatsType
+import os
+import importlib
+from typing import AnyStr
+from sqlalchemy import Connection, text
+from updaters.us.interfaces import UsMetric
 
 
-class Gdp:
-    code = 'gdp'
-    name = 'GDP'
-    constituents = {
-        'GDPC1': 'Real GDP',
-        'PCECC96': 'Consumption',
-        'GPDIC1': 'Investments',
-        'GCEC1': 'Government',
-        'IMPGSC1': 'Imports',
-        'EXPGSC1': 'Exports',
+def get_metrics_from_plugins(plugins_path: str) -> list[UsMetric]:
+    """Get metrics objects from plugins files."""
+    plugins = os.scandir(plugins_path)
+    package_name = plugins_path.replace("/", ".")
+    metrics: list[UsMetric] = []
+    for plugin in plugins:
+        if plugin.name.startswith("metric"):
+            metric_plugin_name = plugin.name.rstrip("py").rstrip(".")
+            metric_plugin = importlib.import_module(
+                f".{metric_plugin_name}",
+                package=package_name,
+                )
+            metrics.append(metric_plugin.Metric())
+
+    return metrics
+
+
+def extract_metric_metadata(metric: UsMetric) -> dict[str, AnyStr]:
+    """Creates dict with selected US metric descriptors."""
+    metric_metadata = {
+        "code": metric.code,
+        "name": metric.name,
+        "frequency": metric.frequency,
+        "data": metric.data,
+        "stats": metric.stats,
     }
-    frequency = Frequency.QUARTERLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
+
+    return metric_metadata
 
 
-class GdpPriceIndex:
-    code = 'gdp_price_index'
-    name = 'GDP Price Index'
-    constituents = {
-        'GDPCTPI': 'GDP Price Index',
-        'JCXFE': 'PCE Core Price Index',
-    }
-    frequency = Frequency.QUARTERLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class DebtToGdp:
-    code = 'debt_gdp'
-    name = 'Debt to GDP'
-    constituents = {'GFDEGDQ188S': 'Debt to GDP',}
-    frequency = Frequency.QUARTERLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class EmploymentCostIndex:
-    code = 'empl_cost'
-    name = 'Employment Cost Index'
-    constituents = {'ECIALLCIV': 'Employment Cost Index'}
-    frequency = Frequency.QUARTERLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class Inflation:
-    code = 'inflation'
-    name = 'Inflation'
-    constituents = {
-        'PCEPI': 'PCE',
-        'PCEPILFE': 'Core PCE',
-        'CPIAUCSL': 'CPI',
-        'CPILFESL': 'Core CPI',
-        'CPIFABSL': 'Food CPI',
-        'CPIENGSL': 'Energy CPI',
-        'PPICOR': 'PPI Core',
-    }
-    frequency = Frequency.MONTHLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class RetailSales:
-    code = 'retail'
-    name = 'Retail Sales'
-    constituents = {
-        'RSAFS': 'Retail Sales',
-        'RSFSXMV': 'ex Auto',
-        'MARTSSM44W72USS': 'Core',
-        'RSMVPD': 'Motor Vehicle',
-        'RSNSR': 'Non Store',
-        'RSDBS': 'Food and Beverage',
-        'RSFSDP': 'Food Services',
-        'RSGMS': 'General Merchandise',
-        'RSGASS': 'Gas Stations',
-        'RSBMGESD': 'Housing Supplies',
-        'RSHPCS': 'Health Care',
-        'RSCCAS': 'Clothing',
-        'RSFHFS': 'Furniture',
-        'RSEAS': 'Electronics and Appliences',
-        'RSMSR': 'Miscellaneous stores',
-        'RSSGHBMS': 'Sporting Hobby Books Music',
-    }
-    frequency = Frequency.MONTHLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class IndustrialProduction:
-    code = 'ind_prod'
-    name = 'Industrial Production'
-    constituents = {
-        'INDPRO': 'Industrial Production',
-        'IPCONGD': 'Consumer Goods',
-        'IPBUSEQ': 'Business Equipment',
-        'IPB54100S': 'Construction',
-        'IPMAT': 'Materials',
-        'IPMAN': 'Manufacturing',
-        'IPMINE': 'Mining',
-        'IPUTIL': 'Utilities',
-        'TCU': 'Capacity Utilization',
-    }
-    frequency = Frequency.MONTHLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class DurableGoods:
-    code = 'durable'
-    name = 'New Orders of Durable Goods'
-    constituents = {
-        'DGORDER': 'New Orders',
-        'ADXTNO': 'ex Transport',
-        'NEWORDER': 'Core',
-        'AMTUNO': 'Manufacturing',
-        'A36SNO': 'Transportation Equipment',
-        'A32SNO': 'Fabricated Metal Products',
-        'A33SNO': 'Machinery',
-        'A34SNO': 'Computers',
-        'A31SNO': 'Primary Metals',
-        'A35SNO': 'Electrical Equipment',
-    }
-    frequency = Frequency.MONTHLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class Housing:
-    code = 'housing'
-    name = 'Housing'
-    constituents = {
-        'PERMIT': 'Permits',
-        'HOUST': 'Started',
-        'COMPUTSA': 'Completed',
-        }
-    frequency = Frequency.MONTHLY
-    data = DataType.INDEX
-    stats = StatsType.CHANGE
-
-
-class JobsNfp:
-    code = 'jobs_nfp'
-    name = 'Jobs NFP'
-    constituents = {
-        'PAYEMS': 'NFP',
-        'CES0500000011': 'Weekly Earnings'
-        }
-    frequency = Frequency.MONTHLY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-class JobsUr:
-    code = 'jobs_ur'
-    name = 'Jobs UR'
-    constituents = {
-        'UNRATE': 'UR',
-        'CIVPART': 'Participation Rate'
-        }
-    frequency = Frequency.MONTHLY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-class FedFunds:
-    code = 'fed'
-    name = 'FED Funds Rate'
-    constituents = {'FEDFUNDS': 'FED Funds'}
-    frequency = Frequency.MONTHLY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-class TradeBalance:
-    code = 'trade'
-    name = 'Trade Balance'
-    constituents = {'BOPGSTB': 'Trade Balance'}
-    frequency = Frequency.MONTHLY
-    data = DataType.INDEX
-    stats = StatsType.CHANGE
-
-
-class InitialClaims:
-    code = 'init_claims'
-    name = 'Initial Claims'
-    constituents = {'ICSA': 'Initial Claims'}
-    frequency = Frequency.WEEKLY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-class ContinuedClaims:
-    code = 'cont_claims'
-    name = 'Continued Claims'
-    constituents = {'CCSA': 'Continued Claims'}
-    frequency = Frequency.WEEKLY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-class MoneyStock:
-    code = 'money'
-    name = 'Money Stock'
-    constituents = {
-        'WM1NS': 'M1',
-        'WM2NS': 'M2',
-        }
-    frequency = Frequency.WEEKLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class TotalAssets:
-    code = 'assets'
-    name = 'Total Assets'
-    constituents = {'WALCL': 'Total Assets',}
-    frequency = Frequency.WEEKLY
-    data = DataType.CHANGE
-    stats = StatsType.DIFFERENCE
-
-
-class BondYields:
-    code = 'yields'
-    name = 'Bond Yields'
-    constituents = {
-        'T10Y2Y': '10Y_2Y',
-        'T10Y3M': '10Y_3M',
-        'DGS30': '30_Year',
-        'DGS10': '10_Year',
-        'DGS2': '2_Year',
-        'DGS3MO': '3_Month',
-    }
-    frequency = Frequency.DAILY
-    data = DataType.INDEX
-    stats = StatsType.DIFFERENCE
-
-
-selected_metrics: list[Metric] = [
-    Housing,
-    RetailSales,
-    IndustrialProduction,
-    DurableGoods,
-    InitialClaims,
-    ContinuedClaims,
-    JobsNfp,
-    JobsUr,
-    EmploymentCostIndex,
-    Inflation,
-    Gdp,
-    GdpPriceIndex,
-    TradeBalance,
-    DebtToGdp,
-    TotalAssets,
-    FedFunds,
-    BondYields,
-    MoneyStock,
-]
+def find_last_metric_data_date_in_db(
+        metric: UsMetric, db_connection: Connection,
+        ) -> str:
+    """Get last date from metric's data table in database."""
+    table_name = f"us_{metric.name.replace(' ', '_')}_data".lower()
+    last_date = db_connection.scalar(
+        text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
+        )
+        
+    return last_date
