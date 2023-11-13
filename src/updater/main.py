@@ -10,7 +10,7 @@ from updaters.us.fred import metrics, collectors
 from updaters.us import exceptions
 from updaters.libs import cleaners, statistics, helpers
 
-US_METRICS_PLUGINS_PATH = os.getenv("US_METRICS_PLUGINS_PATH")
+US_METRICS_PLUGINS_PATH = "updaters/us/fred/metrics_plugins"
 
 
 def main_us() -> None:
