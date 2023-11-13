@@ -117,8 +117,6 @@ def main_us() -> None:
         pd.DataFrame(metrics_metadata)
         ).transpose()
     
-    print(metrics_metadata_table)
-
     with engine.connect() as connection:
         metrics_metadata_table.to_sql(
             name="us_metrics_metadata",
