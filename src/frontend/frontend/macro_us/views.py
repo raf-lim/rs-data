@@ -1,17 +1,13 @@
 import os
-
 import requests
-# import httpx
 import pandas as pd
-
+import numpy as np
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import connection
 from django.shortcuts import render
 from django.views import View
 
 from config.settings.local import STATIC_ROOT, STATIC_URL
 from frontend.libs import stylers
-
 
 
 class MacroUsMetrics(LoginRequiredMixin, View):
@@ -28,21 +24,35 @@ class MacroUsMetrics(LoginRequiredMixin, View):
         metrics_tables = {}
 
         for metric_code, meta in metrics_metadata.items():
-            metric_all_data_url = os.path.join(self.API_BASE_URL, "us/metric", metric_code)
+            metric_all_data_url = os.path.join(
+                self.API_BASE_URL, "us/metric", metric_code,
+                )
             response = requests.get(metric_all_data_url)
             response.raise_for_status()
 
             metric_all_data = response.json()
-
             data = pd.DataFrame(metric_all_data["data"])[-6:]
-            stats = pd.DataFrame(metric_all_data["statistics"])
+            stats_dict = metric_all_data["statistics"]
+            stats = pd.DataFrame(
+                stats_dict.values(), stats_dict.keys(),
+                ).transpose()
 
-            data_with_stats = pd.concat([data, stats]).transpose()
+            data_with_stats = (
+                pd.concat([data, stats])
+                .transpose()
+                .fillna(np.NaN)
+                )
 
-            res = stylers.MetricTableStyler(data_with_stats).style_table_index_with_change_stats()
+            table = stylers.MetricTableStyler(data_with_stats)
 
-            metrics_tables[metric_code] = res.to_html()
+            if meta["data"] == "index" and meta["stats"] == "difference":
+                styled_table = table.style_table_index_with_difference_stats()
+            elif meta["data"] == "index" and meta["stats"] == "change":
+                styled_table = table.style_table_index_with_change_stats()
+            elif meta["data"] == "change" and meta["stats"] == "difference":
+                styled_table = table.style_table_change_with_difference_stats()
 
+            metrics_tables[meta.get("name")] = styled_table.to_html()
 
         context = {"metrics_tables": metrics_tables}
 
