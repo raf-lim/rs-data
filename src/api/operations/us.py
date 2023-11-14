@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
 
-BASE_API_URL = os.getenv("BASE_API_URL")
+THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
 
 def get_metric_data_from_db(
@@ -85,7 +85,7 @@ def get_metric_all_info_from_db(
         stats = get_metric_statistics_from_db(metric_code, db)
         metadata = get_metric_metadata_from_db(metric_code, db)
     
-    metadata = add_metric_endpoint_url_to_metadata(metadata, BASE_API_URL)
+    metadata = add_metric_endpoint_url_to_metadata(metadata, THIS_API_BASE_URL)
 
     result = {"metadata": metadata}
     result.update({"data": data})
@@ -96,7 +96,7 @@ def get_metric_all_info_from_db(
 
 def create_endpoints_to_metrics_data(
         db: Session,
-        base_api_url: str = BASE_API_URL,
+        base_api_url: str = THIS_API_BASE_URL,
         ) -> dict[str, dict[str, str]]:
     """
     Create dictionary with base links to request data of available us metrics.

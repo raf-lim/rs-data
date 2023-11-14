@@ -9,8 +9,6 @@ services:
     image: postgres
     container_name: rs-data-postgres-local
     restart: unless-stopped
-    # env_file:
-    #  - ./src/.envs/.local/.postgres
     environment:
       - DATABASE_USER=rsdata
       - DATABASE_PASSWORD=rsdatapasswd
@@ -76,7 +74,7 @@ services:
     volumes:
       - ./src/frontend:/app:z
     env_file:
-      - ./src/frontend/.envs/.local/.django
+      - ./src/frontend/.envs/.local/.app
       - ./src/frontend/.envs/.local/.postgres
     ports:
       - '5000:5000'

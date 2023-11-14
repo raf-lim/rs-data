@@ -1,3 +1,6 @@
+# Dockerfile path for deployment on railway.app
+RAILWAY_DOCKERFILE_PATH=/src/updater/.compose/.production/Dockerfile
+
 # PostgreSQL
 # ------------------------------------------
 POSTGRES_USER=
