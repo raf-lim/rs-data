@@ -4,7 +4,7 @@ import pandas as pd
 from requests import HTTPError
 from sqlalchemy.exc import ProgrammingError
 from db.base import engine
-from updaters.us.interfaces import DataType
+from updaters.us.interfaces import DataType, StatsType
 from updaters.us.fred import metrics, collectors
 from updaters.us import exceptions
 from updaters.libs import cleaners, statistics, helpers
@@ -82,8 +82,13 @@ def main_us() -> None:
             year_readings_number = (
                 helpers.set_full_year_readings_number(metric.frequency)
                 )
-            stats_data = statistics.compute_statistics(
-                    data, year_readings_number, metric.stats
+            if metric.stats == StatsType.DIFFERENCE:
+                stats_data = statistics.compute_statistics_difference(
+                    data, year_readings_number
+                    )
+            elif metric.stats == StatsType.CHANGE:
+                stats_data = statistics.compute_statistics_change(
+                    data, year_readings_number,
                     )
             stats_data.name = constituent.replace(" ", "_").lower()
             stats = pd.concat([stats, stats_data], axis=1)
