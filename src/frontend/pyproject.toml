@@ -127,6 +127,7 @@ whitenoise = "^6.6.0"
 uvicorn = "^0.24.0.post1"
 redis = "^5.0.1"
 hiredis = "^2.2.3"
+jinja2 = "^3.1.2"
 
 
 [tool.poetry.group.django.dependencies]
