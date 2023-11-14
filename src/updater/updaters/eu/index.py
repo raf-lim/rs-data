@@ -8,8 +8,9 @@ from updaters.eu import countries, metrics, collectors
 
 
 def main_eu():
+    """Main function for EU updater."""
     BASE_URL = os.getenv("EUROSTAT_BASE_URL")
-    MONTHS_LIMIT = os.getenv("EU_DATA_MONTHS_LIMIT")
+    MONTHS_LIMIT = int(os.getenv("EU_DATA_MONTHS_LIMIT"))
 
     countries_metric_tables: dict[str, pd.DataFrame] = {}
     for metric in metrics.esi_metrics:
@@ -45,10 +46,10 @@ def main_eu():
 
         # Save metric tables in database
         with engine.connect() as conn:
-            for metric in metrics.esi_metrics:
+            for metric_name, metric_table in countries_metric_tables.items():
                 try:
-                    countries_metric_tables[metric.name].to_sql(
-                        name=f"eu_metric_{metric.name.lower()}_data",
+                    metric_table.to_sql(
+                        name=f"eu_metric_{metric_name.lower()}_data",
                         con=conn,
                         if_exists="replace",
                         index=True,
