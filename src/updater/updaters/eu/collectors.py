@@ -1,21 +1,11 @@
 import os
 import logging
-from typing import Protocol, Callable, Optional, Any
+from typing import Any
 import requests
-from requests import HTTPError
 import pandas as pd
 
-from updaters.eu import metrics, countries
-from updaters.libs import statistics
-from updaters.eu.interfaces import EsiMetric
 
 logging.basicConfig(level=logging.INFO)
-
-
-class EuMetric(Protocol):
-    code: str
-    name: str
-    frequency: Optional[str]
 
 
 def compile_endpoint_url(
@@ -32,6 +22,7 @@ def get_data(url: str) -> pd.DataFrame:
     """Get Eurostat data for a metric of a country."""
     response = requests.get(url, timeout=None)
     response.raise_for_status()
+
     return response.json()
 
 
