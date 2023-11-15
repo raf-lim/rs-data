@@ -111,7 +111,7 @@ def main_us() -> None:
                 con=connection,
                 if_exists="replace",
                 index=True,
-                index_label="metric"
+                index_label="index"
                 )
             
             connection.commit()
