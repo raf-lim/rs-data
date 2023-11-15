@@ -13,9 +13,10 @@ def main_eu():
     BASE_URL = getenv("EUROSTAT_BASE_URL")
     MONTHS_LIMIT = int(getenv("EU_DATA_MONTHS_LIMIT"))
 
-    # countries_metrics_data: dict[str, pd.DataFrame] = {}
+    # collect all metrics for one country
+    countries_metrics_data = {}
     for metric in metrics.esi_metrics:
-        
+        # collect same metric for all countries        
         countries_metric: list[pd.DataFrame] = []
         for country_code in countries.eu_countries:
             
@@ -42,6 +43,10 @@ def main_eu():
                 )
             countries_metric.append(country_metric_data)
 
+            if not countries_metrics_data.get(country_code):
+                countries_metrics_data[country_code] = []
+            countries_metrics_data[country_code].append(country_metric_data)
+
         countries_metric_data_table = (
             pd.concat(countries_metric, axis=1).sort_index()
             )
@@ -50,7 +55,6 @@ def main_eu():
         countries_metric_data_table = cleaners.remove_longer_not_reported(
             data=countries_metric_data_table, last_not_reported=6,
             )
-        # countries_metrics_data[metric.name] = countries_metric_data_table
 
         stats = pd.DataFrame()
         for country in countries_metric_data_table.columns:
@@ -85,3 +89,23 @@ def main_eu():
                 logging.warning(f"KeyError: {e}")
 
             conn.commit()
+
+    # merge all metrics tables for a country in one country's table
+    countries_metrics = {
+        country_code: pd.concat(metrics_list, axis=1).sort_index()
+          for country_code, metrics_list in countries_metrics_data.items()
+          }
+
+    # Save countres' tables in database 
+    with engine.connect() as conn:
+        for country_code, country_metrics_data in countries_metrics.items():
+            country_metrics_data.to_sql(
+                name=f"eu_country_{country_code.lower()}_data",
+                con=conn,
+                if_exists="replace",
+                index=True,
+            )
+        
+        conn.commit()
+
+
