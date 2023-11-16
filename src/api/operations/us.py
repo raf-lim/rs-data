@@ -35,7 +35,7 @@ def get_metric_statistics_from_db(
     data = pd.read_sql_table(
         table_name=f"us_{metric_code}_stats",
         con=db.connection(),
-        index_col="metric"
+        index_col="index"
     )
     data = data.replace(to_replace=np.NaN, value=None)
 
