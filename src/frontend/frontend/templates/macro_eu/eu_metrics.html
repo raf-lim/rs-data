@@ -7,9 +7,9 @@
 
 <div class="container-fluid">
 
-  {% for name, table in metrics_tables.items %}
+  {% for metric_code, table in tables.items %}
 
-    <h5 class="mb-3">{{ name }}</h5>
+    <h5 class="mb-3">{{ metric_code }}</h5>
 
     <div class="pb-3">
       {% autoescape off %}
