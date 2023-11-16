@@ -10,11 +10,12 @@ from django.views import View
 # from config.settings.local import STATIC_ROOT, STATIC_URL
 from frontend.libs import stylers
 
+LIMIT = int(os.getenv("EU_LIMIT_MONTHS"))
+
 
 class MacroEuMetrics(LoginRequiredMixin, View):
     """Represents countries performance - metrics perspective."""
     API_BASE_URL = os.getenv("API_BASE_URL")
-    LIMIT = int(os.getenv("EU_LIMIT_METRICS"))
 
     def get(self, request):
         url = os.path.join(self.API_BASE_URL, "eu/metrics")
@@ -31,7 +32,7 @@ class MacroEuMetrics(LoginRequiredMixin, View):
             response.raise_for_status()
 
             metric_all_data = response.json()
-            data = pd.DataFrame(metric_all_data["data"])[-self.LIMIT:]
+            data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
                 stats_dict.values(), stats_dict.keys(),
@@ -53,7 +54,6 @@ class MacroEuMetrics(LoginRequiredMixin, View):
 class MacroEuCountries(LoginRequiredMixin, View):
     """Represents EU countries performance - country perspective."""
     API_BASE_URL = os.getenv("API_BASE_URL")
-    LIMIT = int(os.getenv("EU_LIMIT_METRICS"))
 
     def get(self, request):
         countries_codes_url = os.path.join(self.API_BASE_URL, "eu/countries")
@@ -82,7 +82,7 @@ class MacroEuCountries(LoginRequiredMixin, View):
             except HTTPError:
                 continue
 
-            data = pd.DataFrame(country_data)[-self.LIMIT:]
+            data = pd.DataFrame(country_data)[-LIMIT:]
             stats = pd.DataFrame(country_stats)
             data_with_stats = pd.concat([data, stats]).transpose()
             table = stylers.MetricTableStyler(data_with_stats)
