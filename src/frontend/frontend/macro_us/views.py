@@ -6,8 +6,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import View
 
-from config.settings.local import STATIC_ROOT, STATIC_URL
+# from config.settings.local import STATIC_ROOT, STATIC_URL
 from frontend.libs import stylers
+
+LIMIT = int(os.getenv("US_LIMIT_MONTHS"))
 
 
 class MacroUsMetrics(LoginRequiredMixin, View):
@@ -31,7 +33,7 @@ class MacroUsMetrics(LoginRequiredMixin, View):
             response.raise_for_status()
 
             metric_all_data = response.json()
-            data = pd.DataFrame(metric_all_data["data"])[-6:]
+            data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
                 stats_dict.values(), stats_dict.keys(),
@@ -57,4 +59,3 @@ class MacroUsMetrics(LoginRequiredMixin, View):
         context = {"metrics_tables": metrics_tables}
 
         return render(request, "macro_us/us_metrics.html", context)
-

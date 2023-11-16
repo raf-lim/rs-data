@@ -23,7 +23,8 @@ DJANGO_ACCOUNT_EMAIL_REQUIRED=True
 DJANGO_ACCOUNT_EMAIL_VERIFICATION="none"
 
 # Django views settings
-# Number of months displeyd in EU metrics' tables
-EU_LIMIT_METRICS=12
+# Number of months displeyd in metrics' tables
+US_LIMIT_MONTHS=12
+EU_LIMIT_MONTHS=12
 
 
