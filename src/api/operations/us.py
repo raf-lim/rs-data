@@ -4,6 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
+from libs import exceptions
 
 THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
@@ -16,14 +17,18 @@ def get_metric_data_from_db(
     """
     Get metric's data from database (all constituents).
     """
-    data = pd.read_sql_table(
-        table_name=f"us_{metric_code}_data",
-        con=db.connection(),
-        index_col="date"
-    )[-limit:]
+    try:
+        data = pd.read_sql_table(
+            table_name=f"us_{metric_code}_data",
+            con=db.connection(),
+            index_col="date"
+        )
+    except ValueError:
+        raise exceptions.TableNoFoundException
+    
     data = data.replace(to_replace=np.NaN, value=None)
-
-    return data.to_dict()
+    
+    return data[-limit:] 
 
 
 def get_metric_statistics_from_db(
@@ -33,11 +38,15 @@ def get_metric_statistics_from_db(
     """
     Get metric's statistics from database.
     """
-    data = pd.read_sql_table(
-        table_name=f"us_{metric_code}_stats",
-        con=db.connection(),
-        index_col="index"
-    )
+    try:
+        data = pd.read_sql_table(
+            table_name=f"us_{metric_code}_stats",
+            con=db.connection(),
+            index_col="index"
+        )
+    except ValueError:
+        raise exceptions.TableNoFoundException
+
     data = data.replace(to_replace=np.NaN, value=None)
 
     return data.to_dict()
@@ -47,18 +56,21 @@ def get_metric_metadata_from_db(
         metric_code: str,
         db: Session,
     ) -> dict[str, str]:
-    """Get all metrics' metadata from database."""
-    columns = db.scalars(
-        text(f"""
-             SELECT column_name
-             FROM information_schema.columns
-             WHERE table_name = :table_name
-             """), {"table_name": "us_metrics_metadata"}).all()
-    data = db.execute(
-        text(f"""
-             SELECT * FROM us_metrics_metadata
-             WHERE code = :metric_code
-             """), {"metric_code": metric_code}).all()
+    """Get all metrics' metadata from database"""
+    try:
+        columns = db.scalars(
+            text(f"""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = :table_name
+                """), {"table_name": "us_metrics_metadata"}).all()
+        data = db.execute(
+            text(f"""
+                SELECT * FROM us_metrics_metadata
+                WHERE code = :metric_code
+                """), {"metric_code": metric_code}).all()
+    except Exception:
+        raise exceptions.TableNoFoundException
     
     return {col: value for col, value in zip(columns, *data)}
     
@@ -67,7 +79,7 @@ def add_metric_endpoint_url_to_metadata(
         metadata: dict[str, str],
         base_api_url: str = THIS_API_BASE_URL,
         ) -> dict[str, str]:
-    """Add endpoint url to metric's metadata.""" 
+    """Add endpoint url to metric's metadata""" 
     metadata["url"] = os.path.join(
         base_api_url, "us/metric", metadata.get("code"), "metadata",
         )
@@ -80,19 +92,17 @@ def get_metric_all_info_from_db(
         limit: Optional[int],
         db: Session
 ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
-    """Get metric's data and statistics from database."""
-    with db.connection() as conn:
-        data = get_metric_data_from_db(metric_code, limit, db)
-        stats = get_metric_statistics_from_db(metric_code, db)
-        metadata = get_metric_metadata_from_db(metric_code, db)
-    
+    """Get metric's data and statistics from database"""
+    data = get_metric_data_from_db(metric_code, limit, db)
+    stats = get_metric_statistics_from_db(metric_code, db)
+    metadata = get_metric_metadata_from_db(metric_code, db)
     metadata = add_metric_endpoint_url_to_metadata(metadata, THIS_API_BASE_URL)
 
-    result = {"metadata": metadata}
-    result.update({"data": data})
-    result.update({"statistics": stats})
+    metric_info = {"metadata": metadata}
+    metric_info.update({"data": data})
+    metric_info.update({"statistics": stats})
     
-    return result 
+    return metric_info
 
 
 def create_endpoints_to_metrics_data(
@@ -103,18 +113,23 @@ def create_endpoints_to_metrics_data(
     Create dictionary with base links to request data of available us metrics.
     End points names are derived from tables names in database.
     """
-    with db.connection() as conn:
-        metrics = pd.read_sql_table(
-            table_name="us_metrics_metadata",
-            con=conn,
-            index_col="code",
-        ).transpose().to_dict()
+    try:
+        with db.connection() as conn:
+            metrics = pd.read_sql_table(
+                table_name="us_metrics_metadata",
+                con=conn,
+                index_col="code",
+            )
+    except ValueError:
+        raise exceptions.TableNoFoundException
 
-        for metric_code, metadata in metrics.items():
-            metadata["url"] = os.path.join(base_api_url, "us/metric", metric_code)
-            metadata["url_metadata"] = os.path.join(metadata.get("url"), "metadata")
-            metadata["url_data"] = os.path.join(metadata.get("url"), "data")
-            metadata["url_stats"] = os.path.join(metadata.get("url"), "stats")
-            metrics.update({metric_code: metadata})
+    metrics = metrics.transpose().to_dict()
+
+    for metric_code, metadata in metrics.items():
+        metadata["url"] = os.path.join(base_api_url, "us/metric", metric_code)
+        metadata["url_metadata"] = os.path.join(metadata.get("url"), "metadata")
+        metadata["url_data"] = os.path.join(metadata.get("url"), "data")
+        metadata["url_stats"] = os.path.join(metadata.get("url"), "stats")
+        metrics.update({metric_code: metadata})
   
     return metrics
