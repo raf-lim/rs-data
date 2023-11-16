@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load macro_us_extras %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  {% for name, table in metrics_tables.items %}
+
+    <h5 class="mb-3">{{ name }}</h5>
+
+    <div class="pb-3">
+      {% autoescape off %}
+        <p>{{ table }}</p>
+      {% endautoescape %}
+    </div>
+
+  {% endfor %}
+
+  <div class="pt-3">
+      <a href="#" class="btn btn-outline-secondary">Back to Top</a>
+  </div>
+</div>
+
+{% endblock %}
