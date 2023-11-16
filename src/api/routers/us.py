@@ -1,11 +1,13 @@
+from os import getenv
 from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
 from operations import us
 
-
 router_us = APIRouter(prefix="/us", tags=["us"])
+
+LIMIT = int(getenv("US_LIMIT_MONTHS"))
 
 
 @router_us.get("/metrics")
@@ -17,7 +19,7 @@ async def get_metrics_data_endpoints(
 
 @router_us.get("/metric/{metric_code}")
 async def get_metric_all_data(
-    metric_code: str, limit: int = 0, db: Session = Depends(get_db),
+    metric_code: str, limit: int = LIMIT, db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     
     return us.get_metric_all_info_from_db(metric_code, limit, db)
@@ -35,7 +37,7 @@ async def get_metric_metadata(
 
 @router_us.get("/metric/{metric_code}/data")
 async def get_metric_data(
-    metric_code: str, limit: int = 0, db: Session = Depends(get_db)
+    metric_code: str, limit: int = LIMIT, db: Session = Depends(get_db)
     ) -> dict[str, dict[str, float | None]]:
     
     return us.get_metric_data_from_db(metric_code, limit, db)
@@ -47,5 +49,3 @@ async def get_metric_statistics(
     ) -> dict[str, dict[str, float | None]]:
     
     return us.get_metric_statistics_from_db(metric_code, db)
-
-

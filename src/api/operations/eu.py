@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
 
-
 THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
 
@@ -27,9 +26,6 @@ def extract_metrics_codes_from_db(
                  }).all()
     
     return [table_name.split("_")[-2] for table_name in tables]
-
-
-
 
 
 def create_metric_metadata(
@@ -92,7 +88,7 @@ def get_metric_statistics_from_db(
     data = pd.read_sql_table(
         table_name=f"eu_metric_{metric_code}_stats",
         con=db.connection(),
-        index_col="index" #TODO: might be changed later in updater into "stats"...
+        index_col="index"
     )
     data = data.replace(to_replace=np.NaN, value=None)
 
@@ -101,7 +97,7 @@ def get_metric_statistics_from_db(
 
 def get_metric_all_info(
         metric_code: str,
-        limit: int,
+        limit: Optional[int],
         db: Session,
 ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     """Get metric's data and statistics from database."""
@@ -184,6 +180,3 @@ def get_country_statistics_from_db(
         metrics_stats[metric_name] = {row[0]: row[1] for row in metric_stats}
 
     return metrics_stats
-
-# TODO: All info for country
-# TODO: Countries metadata (list of countries)
