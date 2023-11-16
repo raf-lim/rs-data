@@ -2,10 +2,12 @@ from os import getenv
 from fastapi import FastAPI
 import uvicorn
 from routers.us import router_us
+from routers.eu import router_eu
 
 
 app = FastAPI()
 app.include_router(router_us)
+app.include_router(router_eu)
 
 
 if __name__ == "__main__":

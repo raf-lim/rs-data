@@ -17,3 +17,7 @@ LIMIT_FRED_QUARTERLY=40
 # UMCSI
 UMCSI_INDEX_URL=http://www.sca.isr.umich.edu/files/tbmics.csv
 UMSCI_COMP_URL=http://www.sca.isr.umich.edu/files/tbmiccice.csv
+
+# Eurostat
+EUROSTAT_BASE_URL=https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/ei_bssi_m_r2
+EU_DATA_MONTHS_LIMIT=120 # number of months being saved to database.
