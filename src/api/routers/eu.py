@@ -1,14 +1,14 @@
+from os import getenv
 from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.base import get_db
 from operations import eu
 
-
 router_eu = APIRouter(prefix="/eu", tags=["eu"])
 
+LIMIT = int(getenv("EU_LIMIT_MONTHS"))
 
-LIMIT = 12
 
 @router_eu.get("/metrics")
 async def get_metrics_metadata(

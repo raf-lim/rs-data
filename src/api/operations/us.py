@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 import pandas as pd
@@ -9,7 +10,7 @@ THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
 def get_metric_data_from_db(
         metric_code: str,
-        limit: int,
+        limit: Optional[int],
         db: Session
     ) -> dict[str, dict[str, float | None]]:
     """
@@ -64,7 +65,7 @@ def get_metric_metadata_from_db(
 
 def add_metric_endpoint_url_to_metadata(
         metadata: dict[str, str],
-        base_api_url: str,
+        base_api_url: str = THIS_API_BASE_URL,
         ) -> dict[str, str]:
     """Add endpoint url to metric's metadata.""" 
     metadata["url"] = os.path.join(
@@ -76,7 +77,7 @@ def add_metric_endpoint_url_to_metadata(
 
 def get_metric_all_info_from_db(
         metric_code: str,
-        limit: int,
+        limit: Optional[int],
         db: Session
 ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     """Get metric's data and statistics from database."""

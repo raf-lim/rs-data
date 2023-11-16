@@ -10,3 +10,7 @@ POSTGRES_PORT=
 POSTGRES_USER=
 
 DATABASE_URL=
+
+# Set number of months requested from database.
+US_LIMIT_MONTHS=12
+EU_LIMIT_MONTHS=12
