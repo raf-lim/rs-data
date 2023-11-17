@@ -126,6 +126,7 @@ def create_endpoints_to_metrics_data(
     metrics = metrics.transpose().to_dict()
 
     for metric_code, metadata in metrics.items():
+        metadata["code"] = metric_code
         metadata["url"] = os.path.join(base_api_url, "us/metric", metric_code)
         metadata["url_metadata"] = os.path.join(metadata.get("url"), "metadata")
         metadata["url_data"] = os.path.join(metadata.get("url"), "data")
