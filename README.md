@@ -1,34 +1,42 @@
-### About RS-DATA
+### Project RS-DATA
 
-Design to automatically update database with data
-pulled from external APIs, process them and save in the database.
+#### Purpose:
+Deliver and/or present selected macroeconomic metrics' and indicators' data.
 
-Processed data are being served via another app RS-API (REST API).
+#### Services:
+- Database: Postgres
+- Updater (Python): autmatically updates data in the database (crone schedule on updater/main.py)
+- API (FastAPI): serves data from database
+- Frontend (Django): pulls (form API) and presents data.
 
-### Start Docker containers and run the app locally (dockerized)
+![services](https://github.com/raf-lim/rs-data/assets/105244879/2caa9be0-b418-44f4-81ba-29ae1b4947bd)
 
-- in the root create .env file based on .env.example
-- get your API keys and save them in .env file
-...
-- to start the containers (if executed first time the docker images 
-are created and containers started):
-```bash
+
+
+#### Run the project locally
+```
+git clone https://github.com/raf-lim/rs-data.git
+```
+- optionally in the project root directory create .env file based on .env.example (if FRED API key is not set the updater skips creating tables for US metrics in database, api returns relevant status and frontend returns "Page Not Found" page for US Metrics.)
+- run docker compose to create images and spin up the containers:
+```
 docker compose -f local.yml -up -d
 ```
-- to start updating data:
-```bash
-docker exec -it rs-data python main.py
+- feed database with data:
 ```
-- postgres data persists in Docker volumes.
+docker exec rs-data python main.py
+```
+- postgres persists data in Docker volumes.
 
-### Tests
-
-```bash
+#### Tests
+```
 docker exec rs-data python -m pytest
 ```
-
-### To stop or remove the containers
-```bash
-docker compose -f local.yml stop
+#### To remove project
+```
 docker compose -f local.yml down
+docker image rm rs-data-updater
+docker image rm rs-data-api
+docker image rm rs-data-frontend-django-local
+docker volume rm rs_data_pg_data
 ```
