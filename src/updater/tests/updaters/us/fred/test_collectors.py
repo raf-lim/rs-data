@@ -5,9 +5,9 @@ from sqlalchemy import create_engine, text, insert, select
 from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
 from db.base_class import Base
 from updaters.us.interfaces import Frequency
-from updaters.us.fred import collectors
-from updaters.us import exceptions
-from updaters.us.fred.metrics import Housing
+from updaters.us.fred import metrics, collectors
+from updaters.libs import exceptions
+from updaters.us.fred.metrics_plugins import metric_housing
 
 class TestSetLimitOfReadings:
     LIMIT_FRED_DAILY = "252"
@@ -81,7 +81,8 @@ class TestFindLastMetricDataDateInDb:
             session.commit()
 
         with Session().connection() as conn:
-            last_date = collectors.find_last_metric_data_date_in_db(Housing, conn)
+            housing_obj = metric_housing.Metric()
+            last_date = metrics.find_last_metric_data_date_in_db(housing_obj, conn)
             
         assert last_date == "2023-03-01"
 
@@ -112,13 +113,13 @@ class TestFetchConstituentData:
     @patch(target="updaters.us.fred.collectors.requests")
     def test_fetch_constituent_data_negative_by_AI(self, mock_requests):
         
-        mock_response = MagicMock(status_code=403)
+        mock_response = MagicMock(status_code=404)
         mock_response.raise_for_status.side_effect = requests.HTTPError
         
         mock_requests.get.return_value = mock_response
 
-        with TestCase().assertRaises(requests.HTTPError):
-            collectors.fetch_constituent_data("foo", "bar")
+        with TestCase().assertRaises(requests.exceptions.RequestException):
+            collectors.fetch_constituent_data("foo", 5)
 
 
 class TestParseConstituentData:

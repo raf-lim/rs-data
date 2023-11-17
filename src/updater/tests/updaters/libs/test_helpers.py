@@ -1,6 +1,6 @@
 import pandas as pd
-from libs import helpers
-from updaters.us.interfaces import Frequency, Metric
+from updaters.libs import helpers
+from updaters.us.interfaces import Frequency, UsMetric
 
 
 def test_full_year_readings_number():
@@ -15,7 +15,7 @@ def test_compute_period_to_period_change_frequency_quarter():
     class TestMetric:
         frequency = Frequency.QUARTERLY
 
-    metric = TestMetric
+    metric = TestMetric()
 
     data = pd.DataFrame({
         "const1": [i for i in range(1, 53)],
@@ -25,10 +25,10 @@ def test_compute_period_to_period_change_frequency_quarter():
     result = helpers.compute_period_to_period_change(metric, data)
     
     assert len(result.columns) == 4
-    assert "const1 qtq" and "const2 qtq" in result.columns
-    assert "const1 yoy" and "const2 yoy" in result.columns
-    assert result["const1 qtq"][1] == data["const1"].pct_change()[1]
-    assert result["const1 qtq"][2] == data["const1"].pct_change()[2]
+    assert "const1_qtq" and "const2_qtq" in result.columns
+    assert "const1_yoy" and "const2_yoy" in result.columns
+    assert result["const1_qtq"][1] == data["const1"].pct_change()[1]
+    assert result["const1_qtq"][2] == data["const1"].pct_change()[2]
     
 
 def test_compute_period_to_period_change_frequency_month():
@@ -46,10 +46,10 @@ def test_compute_period_to_period_change_frequency_month():
     result = helpers.compute_period_to_period_change(metric, data)
     
     assert len(result.columns) == 4
-    assert "const1 mtm" and "const2 mtm" in result.columns
-    assert "const1 yoy" and "const2 yoy" in result.columns
-    assert result["const1 mtm"].iloc[1] == data["const1"].pct_change().iloc[1]
-    assert result["const1 yoy"].iloc[12] == data["const1"].pct_change(12).iloc[12]
+    assert "const1_mtm" and "const2_mtm" in result.columns
+    assert "const1_yoy" and "const2_yoy" in result.columns
+    assert result["const1_mtm"].iloc[1] == data["const1"].pct_change().iloc[1]
+    assert result["const1_yoy"].iloc[12] == data["const1"].pct_change(12).iloc[12]
 
 
 def test_compute_period_to_period_change_frequency_week():
@@ -68,7 +68,7 @@ def test_compute_period_to_period_change_frequency_week():
     result = helpers.compute_period_to_period_change(metric, data)
 
     assert len(result.columns) == 6
-    assert "const1 mtm" and "const2 mtm" in result.columns
-    assert "const1 yoy" and "const2 yoy" in result.columns
-    assert result["const1 mtm"].iloc[4] == data["const1"].pct_change(4).iloc[4]
-    assert result["const1 yoy"].iloc[-1] == data["const1"].pct_change(52).iloc[-1]
+    assert "const1_mtm" and "const2_mtm" in result.columns
+    assert "const1_yoy" and "const2_yoy" in result.columns
+    assert result["const1_mtm"].iloc[4] == data["const1"].pct_change(4).iloc[4]
+    assert result["const1_yoy"].iloc[-1] == data["const1"].pct_change(52).iloc[-1]
