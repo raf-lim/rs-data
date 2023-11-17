@@ -23,7 +23,15 @@ class MacroUsMetrics(LoginRequiredMixin, View):
         try:
             response.raise_for_status()
         except HTTPError:
-            return render(request, "404.html")
+            return render(
+                request,
+                "404.html",
+                {"exception": (
+                    f"Not a single US metric's table in the database. "
+                    f"Try feeding the database using updater service "
+                    f"(if you have got relevant API key/keys)."
+                    )
+                    })
 
         metrics_metadata = response.json()
 
@@ -32,13 +40,13 @@ class MacroUsMetrics(LoginRequiredMixin, View):
             metric_all_data_url = os.path.join(
                 self.API_BASE_URL, "us/metric", metric_code,
                 )
-            response = requests.get(metric_all_data_url)
+            response_metric = requests.get(metric_all_data_url)
             try:
-                response.raise_for_status()
+                response_metric.raise_for_status()
             except HTTPError:
                 continue
 
-            metric_all_data = response.json()
+            metric_all_data = response_metric.json()
             data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
