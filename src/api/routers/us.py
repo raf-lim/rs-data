@@ -17,7 +17,7 @@ async def get_metrics_data_endpoints(
     ) -> dict[str, dict[str, str]]:
     try:
         return us.create_endpoints_to_metrics_data(db)
-    except exceptions.TableNoFoundException:
+    except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
 
@@ -27,7 +27,7 @@ async def get_metric_all_data(
     ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     try:
         return us.get_metric_all_info_from_db(metric_code, limit, db)
-    except exceptions.TableNoFoundException:
+    except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
 
@@ -39,7 +39,7 @@ async def get_metric_metadata(
     try:
         metadata = us.get_metric_metadata_from_db(metric_code, db)
         return us.add_metric_endpoint_url_to_metadata(metadata)
-    except exceptions.TableNoFoundException:
+    except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
 
@@ -49,7 +49,7 @@ async def get_metric_data(
     ) -> dict[str, dict[str, float | None]]:
     try:
         return us.get_metric_data_from_db(metric_code, limit, db)
-    except exceptions.TableNoFoundException:
+    except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404) 
 
 
@@ -59,5 +59,5 @@ async def get_metric_statistics(
     ) -> dict[str, dict[str, float | None]]:
     try:
         return us.get_metric_statistics_from_db(metric_code, db)
-    except exceptions.TableNoFoundException:
+    except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404) 

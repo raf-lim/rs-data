@@ -24,7 +24,7 @@ def get_metric_data_from_db(
             index_col="date"
         )
     except ValueError:
-        raise exceptions.TableNoFoundException
+        raise exceptions.NoTableFoundException
     
     data = data.replace(to_replace=np.NaN, value=None)
     
@@ -45,7 +45,7 @@ def get_metric_statistics_from_db(
             index_col="index"
         )
     except ValueError:
-        raise exceptions.TableNoFoundException
+        raise exceptions.NoTableFoundException
 
     data = data.replace(to_replace=np.NaN, value=None)
 
@@ -70,7 +70,7 @@ def get_metric_metadata_from_db(
                 WHERE code = :metric_code
                 """), {"metric_code": metric_code}).all()
     except Exception:
-        raise exceptions.TableNoFoundException
+        raise exceptions.NoTableFoundException
     
     return {col: value for col, value in zip(columns, *data)}
     
@@ -121,7 +121,7 @@ def create_endpoints_to_metrics_data(
                 index_col="code",
             )
     except ValueError:
-        raise exceptions.TableNoFoundException
+        raise exceptions.NoTableFoundException
 
     metrics = metrics.transpose().to_dict()
 

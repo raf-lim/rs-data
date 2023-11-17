@@ -4,6 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
+from libs import exceptions
 
 THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
@@ -24,6 +25,9 @@ def extract_metrics_codes_from_db(
                  "table_name_prefix": "eu_metric%",
                  "table_name_suffix": "%data"
                  }).all()
+
+    if len(tables) < 1:
+        raise exceptions.NoEuMetricTableFound
     
     return [table_name.split("_")[-2] for table_name in tables]
 
@@ -52,6 +56,7 @@ def create_all_metrics_metadata(
         metrics_getter: MetricsCodesGetterFn = extract_metrics_codes_from_db,
         metadata_creator: MetadataCreatorFn = create_metric_metadata,
         ) -> dict[str, dict[str, str]]:
+    """Create metadata for all EU metrics in database"""
     metrics_codes = metrics_getter(db)
 
     return {
@@ -68,14 +73,18 @@ def get_metric_data_from_db(
     """
     Get metric's data from database (all constituents).
     """
-    data = pd.read_sql_table(
-        table_name=f"eu_metric_{metric_code}_data",
-        con=db.connection(),
-        index_col="date"
-    )[-limit:]
+    try:
+        data = pd.read_sql_table(
+            table_name=f"eu_metric_{metric_code}_data",
+            con=db.connection(),
+            index_col="date"
+        )
+    except ValueError:
+        raise exceptions.NoTableFoundException
+        
     data = data.replace(to_replace=np.NaN, value=None)
 
-    return data.to_dict()
+    return data[-limit:].to_dict()
 
 
 def get_metric_statistics_from_db(
@@ -85,11 +94,15 @@ def get_metric_statistics_from_db(
     """
     Get metric's statistics from database.
     """
-    data = pd.read_sql_table(
-        table_name=f"eu_metric_{metric_code}_stats",
-        con=db.connection(),
-        index_col="index"
-    )
+    try:
+        data = pd.read_sql_table(
+            table_name=f"eu_metric_{metric_code}_stats",
+            con=db.connection(),
+            index_col="index"
+        )
+    except ValueError:
+        raise exceptions.NoTableFoundException
+    
     data = data.replace(to_replace=np.NaN, value=None)
 
     return data.to_dict()
@@ -129,6 +142,9 @@ def extract_countries_codes_from_db(
                  "table_name_suffix": "%data"
                  }).all()
     
+    if len(tables) < 1:
+        raise exceptions.NoEuCountryTableFound
+    
     return (
         table_name
         .lstrip("eu")
@@ -149,14 +165,18 @@ def get_country_data_from_db(
     """
     Get country's data from database (all constituents).
     """
-    data = pd.read_sql_table(
-        table_name=f"eu_country_{country_code}_data",
-        con=db.connection(),
-        index_col="date"
-    )[-limit:]
+    try:
+        data = pd.read_sql_table(
+            table_name=f"eu_country_{country_code}_data",
+            con=db.connection(),
+            index_col="date"
+        )
+    except ValueError:
+        raise exceptions.NoTableFoundException
+    
     data = data.replace(to_replace=np.NaN, value=None)
 
-    return data.to_dict()
+    return data[-limit:].to_dict()
 
 
 def get_country_statistics_from_db(
@@ -178,5 +198,8 @@ def get_country_statistics_from_db(
                  """)
             ).all()
         metrics_stats[metric_name] = {row[0]: row[1] for row in metric_stats}
+
+    if len(metrics_stats) < 1:
+        raise exceptions.NoEuCountryTableFound
 
     return metrics_stats
