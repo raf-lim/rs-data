@@ -1,8 +1,9 @@
 from os import getenv
 import logging
 import requests
+from requests import HTTPError, RequestException
 from updaters.us.interfaces import Frequency
-from updaters.us import exceptions
+from updaters.libs import exceptions
 logging.basicConfig(level=logging.INFO)
 
 
@@ -39,12 +40,17 @@ def fetch_constituent_data(code: str, limit: int) -> JSON:
     """
     Get US metric's constituent data form Fred API.
     """
+    if not API_KEY:
+        raise exceptions.MissingFredApiKeyException
     url = (
         f"{FRED_BASE_URL}{code}&api_key={API_KEY}"
         f"&sort_order=desc&limit={limit}&file_type=json"
         )
     response = requests.get(url, timeout=None)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except HTTPError:
+        raise RequestException
     
     return response.json()
 

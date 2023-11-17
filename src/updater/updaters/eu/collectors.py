@@ -2,8 +2,8 @@ import os
 import logging
 from typing import Any
 import requests
+from requests.exceptions import HTTPError, RequestException
 import pandas as pd
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,7 +21,10 @@ def compile_endpoint_url(
 def get_data(url: str) -> pd.DataFrame:
     """Get Eurostat data for a metric of a country."""
     response = requests.get(url, timeout=None)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except HTTPError:
+        raise RequestException
 
     return response.json()
 

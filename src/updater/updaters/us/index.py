@@ -1,12 +1,12 @@
+import sys
 import logging
 from typing import AnyStr
 import pandas as pd
-from requests import HTTPError
-from sqlalchemy.exc import ProgrammingError
+from requests import HTTPError, RequestException
 from db.base import engine
 from updaters.us.interfaces import DataType, StatsType
 from updaters.us.fred import metrics, collectors
-from updaters.us import exceptions
+from updaters.libs import exceptions
 from updaters.libs import cleaners, statistics, helpers
 
 
@@ -25,6 +25,7 @@ def main_us() -> None:
         metrics_metadata.update(
             {metric.code: metrics.extract_metric_metadata(metric)}
             )
+        
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
         try:
@@ -42,7 +43,13 @@ def main_us() -> None:
 
         # In case of sqlalchemy error if table not exists program runs
         # and create the table for the metric
-        except ProgrammingError as e:
+        except exceptions.MissingFredApiKeyException:
+            logging.error("FRED API key not set")
+            sys.exit(1)
+        except RequestException as e:
+            logging.warning(e)
+            continue
+        except exceptions.NoTableFoundException:
             pass
 
         readings_limit = collectors.set_limit_of_readings(metric.frequency)
@@ -117,9 +124,7 @@ def main_us() -> None:
             connection.commit()
 
     # Create and save table with all metrics metadata.
-    metrics_metadata_table = (
-        pd.DataFrame(metrics_metadata)
-        ).transpose()
+    metrics_metadata_table = (pd.DataFrame(metrics_metadata)).transpose()
     
     with engine.connect() as connection:
         metrics_metadata_table.to_sql(

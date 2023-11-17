@@ -2,7 +2,9 @@ import os
 import importlib
 from typing import AnyStr
 from sqlalchemy import Connection, text
+from sqlalchemy.exc import ProgrammingError
 from updaters.us.interfaces import UsMetric
+from updaters.libs import exceptions
 
 
 def get_metrics_from_plugins(plugins_path: str) -> list[UsMetric]:
@@ -40,8 +42,11 @@ def find_last_metric_data_date_in_db(
         ) -> str:
     """Get last date from metric's data table in database."""
     table_name = f"us_{metric.name.replace(' ', '_')}_data".lower()
-    last_date = db_connection.scalar(
-        text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
-        )
+    try:
+        last_date = db_connection.scalar(
+            text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
+            )
+    except ProgrammingError:
+        raise exceptions.NoTableFoundException
         
     return last_date

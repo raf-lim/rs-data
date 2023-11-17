@@ -1,6 +1,6 @@
 import os
 import requests
-from requests.exceptions import HTTPError
+from requests import HTTPError
 import pandas as pd
 import numpy as np
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,13 +14,23 @@ LIMIT = int(os.getenv("EU_LIMIT_MONTHS"))
 
 
 class MacroEuMetrics(LoginRequiredMixin, View):
-    """Represents countries performance - metrics perspective."""
+    """Represents EU countries performance - metrics perspective."""
     API_BASE_URL = os.getenv("API_BASE_URL")
 
     def get(self, request):
         url = os.path.join(self.API_BASE_URL, "eu/metrics")
-        response = requests.get(url)
-        response.raise_for_status()
+        response = requests.get(url, timeout=None)
+        try:
+            response.raise_for_status()
+        except HTTPError:
+            return render(
+                request,
+                "404.html",
+                {"exception": (
+                    f"Not a single EU metric's table in the database. "
+                    f"Try feeding the database using updater service."
+                    )})
+
         metrics_metadata = response.json()
 
         metrics_tables = {}
@@ -29,7 +39,10 @@ class MacroEuMetrics(LoginRequiredMixin, View):
                 self.API_BASE_URL, "eu/metric", metric_code,
                 )
             response = requests.get(metric_all_data_url)
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except HTTPError:
+                continue
 
             metric_all_data = response.json()
             data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
@@ -57,30 +70,43 @@ class MacroEuCountries(LoginRequiredMixin, View):
 
     def get(self, request):
         countries_codes_url = os.path.join(self.API_BASE_URL, "eu/countries")
-        response = requests.get(countries_codes_url)
-        response.raise_for_status()
+        response = requests.get(countries_codes_url, timeout=None)
+        print(response)
+        try:
+            response.raise_for_status()
+        except HTTPError:
+            return render(
+                request,
+                "404.html",
+                {"exception": (
+                    f"Not a single EU country's table in the database. "
+                    f"Try feeding the datbase using updater service.")},
+                )
+
         countries_codes: list[str] = response.json()
 
         countries_tables = {}
         for country_code in countries_codes:
+            country_data_url = os.path.join(
+                self.API_BASE_URL, "eu/country", country_code, "data",
+                )
+            country_stats_url = os.path.join(
+                self.API_BASE_URL, "eu/country", country_code, "stats",
+                )
+
+            response_data = requests.get(country_data_url)
             try:
-                country_data_url = os.path.join(
-                    self.API_BASE_URL, "eu/country", country_code, "data",
-                    )
-                response = requests.get(country_data_url)
-                response.raise_for_status()
-                country_data = response.json()
+                response_data.raise_for_status()
             except HTTPError:
                 continue
+            country_data = response_data.json()
+
+            response_stats = requests.get(country_stats_url)
             try:
-                country_stats_url = os.path.join(
-                    self.API_BASE_URL, "eu/country", country_code, "stats",
-                    )
-                response = requests.get(country_stats_url)
-                response.raise_for_status()
-                country_stats = response.json()
+                response_stats.raise_for_status()
             except HTTPError:
                 continue
+            country_stats = response_stats.json()
 
             data = pd.DataFrame(country_data)[-LIMIT:]
             stats = pd.DataFrame(country_stats)

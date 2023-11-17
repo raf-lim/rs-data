@@ -1,5 +1,6 @@
 import os
 import requests
+from requests import HTTPError
 import pandas as pd
 import numpy as np
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -19,20 +20,33 @@ class MacroUsMetrics(LoginRequiredMixin, View):
     def get(self, request):
         url = os.path.join(self.API_BASE_URL, "us/metrics")
         response = requests.get(url)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except HTTPError:
+            return render(
+                request,
+                "404.html",
+                {"exception": (
+                    f"Not a single US metric's table in the database. "
+                    f"Try feeding the database using updater service "
+                    f"(if you have got relevant API key/keys)."
+                    )
+                    })
 
         metrics_metadata = response.json()
 
         metrics_tables = {}
-
         for metric_code, meta in metrics_metadata.items():
             metric_all_data_url = os.path.join(
                 self.API_BASE_URL, "us/metric", metric_code,
                 )
-            response = requests.get(metric_all_data_url)
-            response.raise_for_status()
+            response_metric = requests.get(metric_all_data_url)
+            try:
+                response_metric.raise_for_status()
+            except HTTPError:
+                continue
 
-            metric_all_data = response.json()
+            metric_all_data = response_metric.json()
             data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
@@ -56,6 +70,7 @@ class MacroUsMetrics(LoginRequiredMixin, View):
 
             metrics_tables[meta.get("name")] = styled_table.to_html()
 
-        context = {"metrics_tables": metrics_tables}
+
+        context = {"tables": metrics_tables}
 
         return render(request, "macro_us/us_metrics.html", context)

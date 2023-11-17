@@ -1,6 +1,6 @@
 from os import getenv
 import logging
-from requests import HTTPError
+from requests import RequestException
 import pandas as pd
 from db.base import engine
 from updaters.libs import cleaners, statistics
@@ -25,7 +25,7 @@ def main_eu():
                 )
             try:
                 data = collectors.get_data(url)
-            except HTTPError as e:
+            except RequestException as e:
                 logging.warning(
                     f"{metric.name} for {country_code} error, message: {e}"
                     )
