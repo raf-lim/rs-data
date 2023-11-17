@@ -6,7 +6,7 @@ from db.base import get_db
 from operations import us
 from libs import exceptions
 
-router_us = APIRouter(prefix="/us", tags=["us"])
+router_us = APIRouter(prefix="/us", tags=["US"])
 
 LIMIT = int(getenv("US_LIMIT_MONTHS"))
 
