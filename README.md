@@ -10,10 +10,9 @@ Deliver and/or present selected macroeconomic metrics' and indicators' data.
 - API (FastAPI): serves data from database
 - Frontend (Django): pulls (form API) and presents data.
 
-![services](https://github.com/raf-lim/rs-data/assets/105244879/2caa9be0-b418-44f4-81ba-29ae1b4947bd)
 
 #### Requirements
-<li>Docker up and running.</li>
+Online and Docker up and running.
 
 #### Run the project locally
 ```
@@ -32,7 +31,16 @@ Feed database with data:
 ```
 docker exec rs-data-updater-local python main.py
 ```
-<li>postgres data persist in Docker volumes.</li>
+Services should be na available:
+
+API: http://localhost:8000/docs
+
+Web: http://localhost:5000 (sign up and/or sing in to get access to content).
+
+Django superuser can be created but not required.
+```
+docker exec rs-data-frontend-django-local python manage.py createsuperuser
+```
 
 #### Tests
 updater (initially implemented)
