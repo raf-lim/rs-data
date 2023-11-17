@@ -28,7 +28,7 @@ def get_metric_data_from_db(
     
     data = data.replace(to_replace=np.NaN, value=None)
     
-    return data[-limit:] 
+    return data[-limit:].to_dict() 
 
 
 def get_metric_statistics_from_db(
