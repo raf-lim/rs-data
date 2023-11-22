@@ -18,8 +18,8 @@ RUN pip3 install --upgrade pip \
 RUN poetry install --without dev,test
 COPY src/updater .
 
-RUN chmod +x ./.compose/.production/entrypoint.sh
-ENTRYPOINT [ "sh", "./.compose/.production/entrypoint.sh" ]
+RUN chmod +x ./compose/production/entrypoint.sh
+ENTRYPOINT [ "sh", "./compose/production/entrypoint.sh" ]
 
 # or
 # CMD sh ./.compose/.local/entrypoint.sh

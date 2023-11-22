@@ -1,5 +1,5 @@
 # API
-API_BASE_URL="http://rs-data-api-local:8000"
+API_BASE_URL="http://rs-data-api:8000"
 
 # DATABASE_URL because entrypoint do not load it to container,
 #  at least locally (to be checked).
