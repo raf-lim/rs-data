@@ -25,7 +25,7 @@ git clone https://github.com/raf-lim/rs-data.git
 Spin up containers
 
 ```
-docker compose -f local.yml -up -d
+docker compose up -d
 ```
 Feed database with data:
 ```
@@ -57,9 +57,9 @@ docker exec rs-data-frontend-django-local python -m pytest
 ```
 #### To clean up
 ```
-docker compose -f local.yml down
+docker compose down
 docker image rm rs-data-updater
 docker image rm rs-data-api
-docker image rm rs-data-frontend-django-local
+docker image rm rs-data-frontend
 docker volume rm rs_data_pg_data
 ```
