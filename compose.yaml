@@ -7,7 +7,7 @@ volumes:
 services:
   db:
     image: postgres
-    container_name: rs-data-postgres-local
+    container_name: rs-data-postgres
     restart: unless-stopped
     environment:
       - DATABASE_USER=rsdata
@@ -29,9 +29,9 @@ services:
   updater:
     build:
       context: .
-      dockerfile: ./src/updater/.compose/.local/Dockerfile
+      dockerfile: ./src/updater/compose/local/Dockerfile
     image: rs-data-updater
-    container_name: rs-data-updater-local
+    container_name: rs-data-updater
     volumes:
       - ./src/updater:/app
     env_file:
@@ -46,9 +46,9 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./src/api/.compose/.local/Dockerfile
+      dockerfile: ./src/api/compose/local/Dockerfile
     image: rs-data-api
-    container_name: rs-data-api-local
+    container_name: rs-data-api
     ports:
       - 8000:8000
     volumes:
@@ -67,8 +67,8 @@ services:
     build:
       context: .
       dockerfile: ./src/frontend/compose/local/django/Dockerfile
-    image: rs-data-frontend-django-local
-    container_name: rs-data-frontend-django-local
+    image: rs-data-frontend
+    container_name: rs-data-frontend
     depends_on:
       - db
     volumes:
@@ -83,7 +83,7 @@ services:
     command: /start
 
 # networks:
-  # rs-data_default: # this network is created autmatically for the project
-    # so not need to add it to the services within the project.
+  # rs-data_default: # this network is created automatically for the project
+    # so no need to add it to the services within the project.
     # external: true # Used when network already exists and this network in not
     # created.
