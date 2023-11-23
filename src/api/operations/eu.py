@@ -1,11 +1,10 @@
 import os
 from typing import Callable, Iterable, Optional
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
 from libs import exceptions
-
 THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
 
@@ -13,24 +12,18 @@ def extract_metrics_codes_from_db(
         db: Session,
     ) -> Iterable[str]:
     """Extract EU metrics' codes from tables' names in database"""
-    tables = db.scalars(
-        text(f"""
-             SELECT table_name
-             FROM information_schema.tables
-             WHERE table_schema = :table_schema
-             AND table_name LIKE :table_name_prefix
-             AND table_name LIKE :table_name_suffix
-             """), {
-                 "table_schema": "public",
-                 "table_name_prefix": "eu_metric%",
-                 "table_name_suffix": "%data"
-                 }).all()
+    inspector = inspect(next(db).bind)
+    db_tables = inspector.get_table_names()
 
-    if len(tables) < 1:
+    if len(db_tables) < 1:
         raise exceptions.NoEuMetricTableFound
-    
-    return [table_name.split("_")[-2] for table_name in tables]
 
+    return [
+        table.split("_")[-2]
+          for table in db_tables
+            if table.startswith("eu_metric") and table.endswith("data")
+            ]
+    
 
 def create_metric_metadata(
         metric_code: str, base_api_url: str = THIS_API_BASE_URL,
