@@ -8,6 +8,7 @@ from libs import exceptions
 
 router_eu = APIRouter(prefix="/eu", tags=["Europe"])
 
+THIS_API_BASE_URL = getenv("THIS_API_BASE_URL")
 LIMIT = int(getenv("EU_LIMIT_MONTHS"))
 
 
@@ -16,7 +17,7 @@ async def get_metrics_metadata(
     db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str]]:
     try:
-        return eu.create_all_metrics_metadata(db)
+        return eu.create_all_metrics_metadata(db, THIS_API_BASE_URL)
     except exceptions.NoEuMetricTableFound:
         raise HTTPException(
             status_code=404,
@@ -28,7 +29,7 @@ async def get_metric_all_data(
     metric_code: str, limit: int = LIMIT, db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     try:
-        return eu.get_metric_all_info(metric_code, limit, db)
+        return eu.get_metric_all_info(THIS_API_BASE_URL, metric_code, limit, db)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
@@ -36,7 +37,7 @@ async def get_metric_all_data(
 @router_eu.get("/metric/{metric_code}/metadata")
 async def get_metric_metadata(metric_code) -> dict[str, str]:
     
-    return eu.create_metric_metadata(metric_code)
+    return eu.create_metric_metadata(metric_code, THIS_API_BASE_URL)
 
 
 @router_eu.get("/metric/{metric_code}/data")
@@ -88,6 +89,11 @@ async def get_country_statistics(
     ) -> dict[str, dict[str, float | None]]:
     try:
         return eu.get_country_statistics_from_db(country_code, db)
+    except exceptions.NoEuMetricTableFound:
+        raise HTTPException(
+            status_code=404,
+            detail="No metric's table found."
+            )
     except exceptions.NoTableFoundException:
         raise HTTPException(
             status_code=404,
