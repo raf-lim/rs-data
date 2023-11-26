@@ -1,10 +1,11 @@
-from sqlalchemy.orm import sessionmaker, Mapped 
-from sqlalchemy import create_engine, StaticPool, Column, String, Float
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, StaticPool
 import pytest
 
 from db.base_class import Base
 from operations import eu
 from libs import exceptions
+import table_factories
 
 SQLALCHEMY_TEST_DB = "sqlite:///:memory:"
 
@@ -25,52 +26,6 @@ def override_get_db():
         database.close()
 
 
-def metric_data_table_factory(metric_name: str):
-    """Create metric table class dynamically."""
-    table_name = f"eu_metric_{metric_name.lower()}_data"
-    class_name = f"{metric_name.title()}MetricDataTable"
-
-    GenericTable = type(class_name, (Base,), {
-        "__tablename__": table_name,
-        "date": Column(String, primary_key=True),
-        metric_name: Column(Float)
-        })
-    GenericTable.date: Mapped[str]
-    
-    return GenericTable
-
-
-def metric_stats_table_factory(metric_name: str, country_code: str):
-    """Create metric table class dynamically."""
-    table_name = f"eu_metric_{metric_name.lower()}_stats"
-    class_name = f"{metric_name.title()}MetricStatsTable"
-
-    GenericTable = type(class_name, (Base,), {
-        "__tablename__": table_name,
-        "index": Column(String, primary_key=True),
-        f"{country_code}_{metric_name}".upper(): Column(Float)
-        })
-    GenericTable.date: Mapped[str]
-    
-    return GenericTable 
-
-
-def country_data_table_factory(country_code: str):
-    """Create country table class dynamically."""
-    table_name = f"eu_country_{country_code.lower()}_data"
-    class_name = f"{country_code.title()}CountryDataTable"
-
-    GenericTable = type(class_name, (Base,), {
-        "__tablename__": table_name,
-        "date": Column(String, primary_key=True),
-        f"{country_code.upper()}_ONE": Column(Float),
-        f"{country_code.upper()}_TWO": Column(Float)
-        })
-    GenericTable.date: Mapped[str]
-    
-    return GenericTable
-
-
 @pytest.fixture
 def base_api_url() -> str:
     return "https://test_base_api_url"
@@ -81,14 +36,14 @@ def db():
     yield override_get_db()
 
 
-OneMetricDataTable = metric_data_table_factory("one")
-TwoMetricDataTable = metric_data_table_factory("two")
-ThreeMetricDataTable = metric_data_table_factory("three")
-OneMetricStatsTable = metric_stats_table_factory("one", "pl")
-TwoMetricStatsTable = metric_stats_table_factory("two", "pl")
-PlCountryDataTable = country_data_table_factory("pl")
-FrCountryDataTable = country_data_table_factory("fr")
-DkCountryDataTable = country_data_table_factory("dk")
+OneMetricDataTable = table_factories.metric_data_table_factory("one")
+TwoMetricDataTable = table_factories.metric_data_table_factory("two")
+ThreeMetricDataTable = table_factories.metric_data_table_factory("three")
+OneMetricStatsTable = table_factories.metric_stats_table_factory("one", "pl")
+TwoMetricStatsTable = table_factories.metric_stats_table_factory("two", "pl")
+PlCountryDataTable = table_factories.country_data_table_factory("pl")
+FrCountryDataTable = table_factories.country_data_table_factory("fr")
+DkCountryDataTable = table_factories.country_data_table_factory("dk")
 
 
 class TestExtractMetricsCodesFromDb:
