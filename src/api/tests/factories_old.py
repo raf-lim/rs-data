@@ -10,6 +10,7 @@ def metric_data_table_factory(metric_name: str):
 
     GenericTable = type(class_name, (Base,), {
         "__tablename__": table_name,
+        "__table_args__": {"extend_existing": True},
         "date": Column(String, primary_key=True),
         metric_name: Column(Float)
         })
@@ -25,7 +26,8 @@ def metric_stats_table_factory(metric_name: str, country_code: str):
 
     GenericTable = type(class_name, (Base,), {
         "__tablename__": table_name,
-        "index": Column(String, primary_key=True),
+        "__table_args__": {"extend_existing": True},
+        "stat": Column(String, primary_key=True),
         f"{country_code}_{metric_name}".upper(): Column(Float)
         })
     GenericTable.date: Mapped[str]
@@ -40,6 +42,7 @@ def country_data_table_factory(country_code: str):
 
     GenericTable = type(class_name, (Base,), {
         "__tablename__": table_name,
+        "__table_args__": {"extend_existing": True},
         "date": Column(String, primary_key=True),
         f"{country_code.upper()}_ONE": Column(Float),
         f"{country_code.upper()}_TWO": Column(Float)
