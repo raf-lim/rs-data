@@ -11,7 +11,7 @@ THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
 
 def extract_metrics_codes_from_db(
         db: Session,
-        ) -> Iterable[str]:
+        ) -> Iterable[str] | None:
     """Extract EU metrics' codes from tables' names in database"""
     inspector = inspect(db.bind)
     db_tables = inspector.get_table_names()
@@ -93,7 +93,7 @@ def get_metric_statistics_from_db(
         data = pd.read_sql_table(
             table_name=f"eu_metric_{metric_code}_stats",
             con=db.connection(),
-            index_col="index"
+            index_col="stat"
             )
     except ValueError:
         raise exceptions.NoTableFoundException
@@ -181,7 +181,7 @@ def get_country_statistics_from_db(
             metric_stats = pd.read_sql_table(
                 table_name=f"eu_metric_{metric_code.lower()}_stats",
                 con=db.connection(),
-                index_col="index",
+                index_col="stat",
                 columns=[metric_name]
                 )
             metrics_stats.update(metric_stats.to_dict())

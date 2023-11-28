@@ -64,6 +64,7 @@ def main_eu():
                 )
             stats_data.name = country
             stats = pd.concat([stats, stats_data], axis=1)
+        stats.index.name = "stat"
 
         # Save metric tables in database
         with engine.connect() as conn:
