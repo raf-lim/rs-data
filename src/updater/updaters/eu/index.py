@@ -37,7 +37,7 @@ def main_eu():
             country_metric_data.rename(
                 columns={
                     country_metric_data.columns[0]: 
-                    f"{country_code}-{metric.name}",
+                    f"{country_code}_{metric.name}",
                     },
                 inplace=True,
                 )
@@ -64,6 +64,7 @@ def main_eu():
                 )
             stats_data.name = country
             stats = pd.concat([stats, stats_data], axis=1)
+        stats.index.name = "stat"
 
         # Save metric tables in database
         with engine.connect() as conn:

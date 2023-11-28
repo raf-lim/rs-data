@@ -1,5 +1,4 @@
 eu_countries: dict[str, str] = {
-    'EU27_2020': 'European Union - 27 countries (from 2020)',
     'EA20': 'Euro area - 20 countries (from 2023)',
     'DE': 'Germany (until 1990 former territory of the FRG)',
     'FR': 'France',
