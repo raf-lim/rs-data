@@ -6,8 +6,6 @@ import pandas as pd
 import numpy as np
 from libs import exceptions
 
-THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
-
 
 def extract_metrics_codes_from_db(
         db: Session,
