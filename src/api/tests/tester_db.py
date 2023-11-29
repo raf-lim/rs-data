@@ -14,3 +14,9 @@ engine = create_engine(
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+def override_get_db():
+    session = TestSessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
