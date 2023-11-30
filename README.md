@@ -7,9 +7,8 @@ Deliver and/or present selected macroeconomic metrics' and indicators' data.
 - Database: Postgres
 - Updater (Python): autmatically updates data in the database (crone schedule on updater/main.py)
   - US metrics are set as plugins and can be freely added and removed.
-- API (FastAPI): serves data from database
+- API (FastAPI): serves data from the database
 - Frontend (Django): pulls (form API) and presents data.
-
 
 #### Requirements
 Online and Docker up and running.
@@ -29,32 +28,44 @@ docker compose up -d
 ```
 Feed database with data:
 ```
-docker exec rs-data-updater-local python main.py
+docker exec rs-data-updater python main.py
 ```
-Services should be na available:
+Services should be now available:
 
 API: http://localhost:8000/docs
 
 Web: http://localhost:5000 (sign up and/or sing in to get access to content).
 
-Django superuser can be created but not required.
+Django superuser can be created but not required (e.g. for users' handling purpose).
 ```
 docker exec rs-data-frontend-django-local python manage.py createsuperuser
 ```
 
-#### Tests
-updater (initially implemented)
+#### Tests services
+updater
 ```
-docker exec rs-data-updater-local python -m pytest
+docker exec rs-data-updater python -m pytest
 ```
-api (not implemented yet)
+api
 ```
-docker exec rs-data-api-local python -m pytest
+docker exec rs-data-api python -m pytest
 ```
-frontend (initially implemented)
+frontend
 ```
-docker exec rs-data-frontend-django-local python -m pytest
+docker exec rs-data-frontend python -m pytest
 ```
+
+#### Tests' coverage
+```
+docker exec rs-data-<service> coverage run -m pytest
+docker exec rs-data-<service> coverage report
+```
+Or run
+```
+docker exec rs-data-<service> coverage html
+```
+and open the <service>/htmlcov/index.html in the browser.
+
 #### To clean up
 ```
 docker compose down

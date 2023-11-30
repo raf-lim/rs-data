@@ -15,8 +15,7 @@ from .models import (
 )
 
 
-@pytest.fixture
-def base_api_url() -> str:
+def get_fake_base_api_url() -> str:
     return "https://test_base_api_url"
 
 
@@ -41,6 +40,11 @@ def fake_eu_data_for_country_stats():
         ]
     
     return fake_data
+
+
+@pytest.fixture
+def base_api_url():
+    return get_fake_base_api_url()
 
 
 @pytest.fixture
