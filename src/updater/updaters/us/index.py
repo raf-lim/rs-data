@@ -1,6 +1,8 @@
 import sys
+from os import getenv
 import logging
 from typing import AnyStr
+from enum import Enum
 import pandas as pd
 from requests import HTTPError, RequestException
 from db.base import engine
@@ -13,30 +15,34 @@ from updaters.libs import cleaners, statistics, helpers
 def main_us() -> None:
     """Main function for US updater app."""
     US_METRICS_PLUGINS_PATH = "updaters/us/fred/metrics_plugins"
+    FRED_BASE_URL = getenv("FRED_BASE_URL")
+    API_KEY = getenv("FRED_API_KEY")
 
     selected_metrics = (
         metrics.get_metrics_from_plugins(US_METRICS_PLUGINS_PATH)
         )
 
     metrics_metadata: dict[str, dict[str, AnyStr]] = {}
-
     for metric in selected_metrics:
-        
         metrics_metadata.update(
             {metric.code: metrics.extract_metric_metadata(metric)}
             )
-        
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
         try:
             with engine.connect() as connection:
                 last_date_in_db = metrics.find_last_metric_data_date_in_db(
-                    metric, connection,
+                    metric, connection
                     )
             name_of_first_constituent = tuple(metric.constituents.keys())[0]
-            last_date_in_api = collectors.fetch_constituent_data(
-                    name_of_first_constituent, limit=1,
-                    )["observations"][0]["date"]
+            const_url = collectors.get_constituent_url(
+                name_of_first_constituent, limit=1,
+                fred_base_url=FRED_BASE_URL, api_key=API_KEY
+                )
+            last_date_in_api = (
+                collectors.fetch_constituent_data(const_url)
+                ["observations"][0]["date"]
+                )
 
             if last_date_in_db == last_date_in_api:
                 continue
@@ -52,15 +58,20 @@ def main_us() -> None:
         except exceptions.NoTableFoundException:
             pass
 
-        readings_limit = collectors.set_limit_of_readings(metric.frequency)
+        readings_limit = collectors.set_limit_of_readings(
+            frequency=metric.frequency,
+            period_limits=helpers.PeriodDataLimits
+            )
 
         # Fetch and parse constituents data and gather into dataframe.
         metric_data: dict[str, dict[str, float]] = {}
         for const_code, const_name in metric.constituents.items():
             try:
-                raw_data = collectors.fetch_constituent_data(
-                    const_code, readings_limit
+                const_url = collectors.get_constituent_url(
+                    const_code, limit=readings_limit,
+                    fred_base_url=FRED_BASE_URL, api_key=API_KEY
                     )
+                raw_data = collectors.fetch_constituent_data(const_url)
             except HTTPError as e:
                 logging.warning(f"Error {metric.name}.{const_name} {e}")
             except exceptions.FredApiNoObservationsDataException:
@@ -75,11 +86,11 @@ def main_us() -> None:
         # Clean constituents series recently not reported.
         # and convert into percentage change series if relevant.  
         clean_metric_data = cleaners.remove_longer_not_reported(
-            data=metric_data, last_not_reported=6,
+            data=metric_data, last_not_reported=6
             )
         if metric.data == DataType.CHANGE:
             clean_metric_data = helpers.compute_period_to_period_change(
-                metric=metric, data=metric_data,
+                metric=metric, data=metric_data
                 )
             
         # Compute statistics of constituent series.
@@ -95,7 +106,7 @@ def main_us() -> None:
                     )
             elif metric.stats == StatsType.CHANGE:
                 stats_data = statistics.compute_statistics_change(
-                    data, year_readings_number,
+                    data, year_readings_number
                     )
             stats_data.name = constituent.replace(" ", "_").lower()
             stats = pd.concat([stats, stats_data], axis=1)
@@ -131,6 +142,6 @@ def main_us() -> None:
             name="us_metrics_metadata",
             con=connection,
             if_exists="replace",
-            index=False,
+            index=False
         )
         connection.commit()
