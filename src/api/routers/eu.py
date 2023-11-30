@@ -10,11 +10,7 @@ router_eu = APIRouter(prefix="/eu", tags=["Europe"])
 
 
 def get_base_api_url() -> str:
-    return getenv("THIS_API_BASE_URL", "")
-
-
-def get_months_limit() -> int:
-    return int(getenv("EU_LIMIT_MONTHS", 0))
+    return getenv("THIS_API_BASE_URL")
 
 
 @router_eu.get("/metrics")
@@ -24,7 +20,7 @@ async def get_metrics_metadata(
     ) -> dict[str, dict[str, str]]:
     try:
         return eu.create_all_metrics_metadata(db, base_api_url)
-    except exceptions.NoEuMetricTableFound:
+    except exceptions.NoEuMetricTableFoundException:
         raise HTTPException(
             status_code=404,
             detail="No metric's table found.")
@@ -33,7 +29,7 @@ async def get_metrics_metadata(
 @router_eu.get("/metric/{metric_code}")
 async def get_metric_all_data(
     metric_code: str,
-    limit: int = Depends(get_months_limit),
+    limit: int = 0,
     base_api_url = Depends(get_base_api_url),
     db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
@@ -55,7 +51,7 @@ async def get_metric_metadata(
 @router_eu.get("/metric/{metric_code}/data")
 async def get_metric_data(
     metric_code: str,
-    limit: int = Depends(get_months_limit),
+    limit: int = 0, 
     db: Session = Depends(get_db)
     ) -> dict[str, dict[str, float | None]]:
     try:
@@ -80,7 +76,7 @@ async def get_countries_codes(
     ) -> Iterable[str]:
     try:
         return eu.extract_countries_codes_from_db(db)
-    except exceptions.NoEuCountryTableFound:
+    except exceptions.NoEuCountryTableFoundException:
         raise HTTPException(
             status_code=404,
             detail="No country's table found.",
@@ -90,8 +86,8 @@ async def get_countries_codes(
 @router_eu.get("/country/{country_code}/data")
 async def get_country_data(
     country_code: str,
-    limit: int = Depends(get_months_limit),
-    db: Session = Depends(get_db)
+    limit: int = 0,
+    db: Session = Depends(get_db),
     ) -> dict[str, dict[str, float | None]]:
     try:
         return eu.get_country_data_from_db(country_code, limit, db)
@@ -105,12 +101,12 @@ async def get_country_statistics(
     ) -> dict[str, dict[str, float | None]]:
     try:
         return eu.get_country_statistics_from_db(country_code, db)
-    except exceptions.NoEuMetricTableFound:
+    except exceptions.NoEuMetricTableFoundException:
         raise HTTPException(
             status_code=404,
             detail="No metric's table found."
             )
-    except exceptions.NoTableFoundException:
+    except exceptions.NoEuCountryTableFoundException:
         raise HTTPException(
             status_code=404,
             detail="No country's table found."

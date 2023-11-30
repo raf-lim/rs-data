@@ -15,7 +15,7 @@ def extract_metrics_codes_from_db(
     db_tables = inspector.get_table_names()
 
     if len(db_tables) < 1:
-        raise exceptions.NoEuMetricTableFound
+        raise exceptions.NoEuMetricTableFoundException
 
     return [
         table.split("_")[-2]
@@ -127,7 +127,7 @@ def extract_countries_codes_from_db(
     db_tables = inspector.get_table_names()
     
     if len(db_tables) < 1:
-        raise exceptions.NoEuCountryTableFound
+        raise exceptions.NoEuCountryTableFoundException
     
     return [
         table.split("_")[-2]
@@ -170,8 +170,8 @@ def get_country_statistics_from_db(
     
     try:
         metrics_codes = metrics_getter(db)
-    except exceptions.NoEuMetricTableFound:
-        raise exceptions.NoEuMetricTableFound
+    except exceptions.NoEuMetricTableFoundException:
+        raise exceptions.NoEuMetricTableFoundException
 
     for metric_code in metrics_codes:
         metric_name: str = f"{country_code}_{metric_code}".upper()
@@ -188,6 +188,6 @@ def get_country_statistics_from_db(
         
     # check if any stats' data for at least one metric.
     if len([stats for stats in metrics_stats.values() if len(stats) > 1]) < 1:
-        raise exceptions.NoEuCountryTableFound
+        raise exceptions.NoEuCountryTableFoundException
 
     return metrics_stats
