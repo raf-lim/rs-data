@@ -57,14 +57,14 @@ docker exec rs-data-frontend python -m pytest
 
 #### Tests' coverage
 ```
-docker exec rs-data-<service> coverage run -m pytest
-docker exec rs-data-<service> coverage report
+docker exec rs-data-<service_name> coverage run -m pytest
+docker exec rs-data-<service_name> coverage report
 ```
 Or run
 ```
 docker exec rs-data-<service> coverage html
 ```
-and open the <service>/htmlcov/index.html in the browser.
+and open the <service_name>/htmlcov/index.html in the browser.
 
 #### To clean up
 ```
