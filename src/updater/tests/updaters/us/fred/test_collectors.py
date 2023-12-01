@@ -1,14 +1,12 @@
 from unittest.mock import patch, MagicMock
 from unittest import TestCase
-from enum import StrEnum
 import requests
-from sqlalchemy import create_engine, text, insert, select
+from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
 from db.base_class import Base
 from updaters.us.interfaces import Frequency
 from updaters.us.fred import metrics, collectors
 from updaters.libs import exceptions
-from updaters.libs.helpers import PeriodDataLimits
 from updaters.us.fred.metrics_plugins import metric_housing
 
 

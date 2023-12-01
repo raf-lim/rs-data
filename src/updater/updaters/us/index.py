@@ -2,7 +2,6 @@ import sys
 from os import getenv
 import logging
 from typing import AnyStr
-from enum import Enum
 import pandas as pd
 from requests import HTTPError, RequestException
 from db.base import engine
