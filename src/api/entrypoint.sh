@@ -9,7 +9,9 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-if [ "$ENV_TYPE" = "dev" ]
+if [ "$BUILD_ENVIRONMENT" = "develop" ]
 then
   exec uvicorn main:app --host 0.0.0.0 --reload
+else
+  exec uvicorn main:app --host 0.0.0.0
 fi
