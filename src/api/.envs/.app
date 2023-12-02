@@ -1,3 +1,5 @@
+BUILD_ENVIRONMENT=develop
+
 THIS_API_BASE_URL=http://localhost:8000
 
 # Set number of months requested from database.
