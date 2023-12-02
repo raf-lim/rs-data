@@ -1,3 +1,6 @@
+# ENV type
+ENV_TYPE=dev
+
 # PostgreSQL
 # ------------------------------------------
 POSTGRES_USER=rsdata
