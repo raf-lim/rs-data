@@ -29,11 +29,12 @@ services:
   updater:
     build:
       context: .
-      dockerfile: ./src/updater/compose/local/Dockerfile
+      dockerfile: ./src/updater/Dockerfile
+      target: develop
     image: rs-data-updater
     container_name: rs-data-updater
     volumes:
-      - ./src/updater:/app
+      - ./src/updater:/code
     env_file:
       - ./src/updater/.envs/.local/.app
       - ./src/updater/.envs/.local/.postgres
@@ -47,6 +48,7 @@ services:
     build:
       context: .
       dockerfile: ./src/api/compose/local/Dockerfile
+      # target: develop
     image: rs-data-api
     container_name: rs-data-api
     ports:
