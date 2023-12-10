@@ -1,18 +1,12 @@
-# API
-API_BASE_URL="http://rs-data-api:8000"
-
-# DATABASE_URL because entrypoint do not load it to container,
-#  at least locally (to be checked).
+# Database
+POSTGRES_USER="rsdata"
+POSTGRES_PASSWORD="rsdatapasswd"
+POSTGRES_HOST="db"
+POSTGRES_PORT="5432"
+POSTGRES_DB="rsdata"
 DATABASE_URL="postgres://rsdata:rsdatapasswd@db:5432/rsdata"
 
-# Django
-USE_DOCKER="yes"
-IPYTHONDIR="/app/.ipython"
-
-# Django general
-USE_S3=0
-
-# Django authentication
+# django BASE
 DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
 # Literal["username", "email", "username_email"]
 # "email" requires ACCOUNT_EMAIL_REQUIRED=True
@@ -22,8 +16,13 @@ DJANGO_ACCOUNT_EMAIL_REQUIRED=True
 # "mandatory" requires ACCOUNT_EMAIL_REQUIRED=True
 DJANGO_ACCOUNT_EMAIL_VERIFICATION="none"
 
-# Django views settings
-# Number of months displeyd in metrics' tables
+# django LOCAL
+USE_DOCKER="yes"
+
+# API
+API_BASE_URL="http://api:8000"
+
+# django views - number of months displeyd in metrics' tables
 US_LIMIT_MONTHS=12
 EU_LIMIT_MONTHS=12
 
