@@ -5,16 +5,6 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-# # devcontainer dependencies and utils
-# RUN apt-get update && apt-get install --no-install-recommends -y \
-#   sudo git bash-completion nano ssh
-
-# # Create devcontainer user and add it to sudoers
-# RUN groupadd --gid 1001 dev-user \
-#   && useradd --uid 1001 --gid dev-user --shell /bin/bash --create-home dev-user \
-#   && echo dev-user ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/dev-user \
-#   && chmod 0440 /etc/sudoers.d/dev-user
-
 # Install required system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # Translations dependencies
@@ -32,7 +22,10 @@ COPY src/frontend/pyproject.toml src/frontend/poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
+  
 RUN poetry install
+
+RUN addgroup --system django && adduser --system -ingroup django django
 
 COPY src/frontend .
 
@@ -44,6 +37,9 @@ RUN mv ./compose/local/django/start /start \
   && sed -i 's/\r$//g' /start \
   && chmod +x /start
 
-# USER dev-user
+# make django owner of the WORKDIR directory as well.
+RUN chown django:django /app
+
+USER django
 
 ENTRYPOINT ["/entrypoint"]

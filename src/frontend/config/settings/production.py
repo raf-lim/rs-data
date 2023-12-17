@@ -50,7 +50,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = env.bool("DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", def
 
 # STORAGES
 
-if env("USE_S3") == 1:
+if env("USE_S3") == "yes":
     # ------------------------------------------------------------------------------
     # https://django-storages.readthedocs.io/en/latest/#installation
     INSTALLED_APPS += ["storages"]  # noqa: F405

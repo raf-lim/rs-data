@@ -1,6 +1,6 @@
-FROM python:3.11.6-slim-bullseye
+FROM python:3.11.6-slim-bullseye as builder
 
-WORKDIR /app
+WORKDIR /code
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -22,28 +22,22 @@ COPY src/frontend/pyproject.toml src/frontend/poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
-  
-RUN poetry install --without dev,django-dev,test,docs,quality
-
-RUN addgroup --system django && adduser --system -ingroup django django
 
 COPY src/frontend .
+RUN chmod +x ./entrypoint.sh
 
-RUN mv ./compose/production/django/entrypoint /entrypoint \
-  && sed -i 's/\r$//g' /entrypoint \
-  && chmod +x /entrypoint
+FROM builder AS develop
+RUN poetry install
+ENTRYPOINT ["./entrypoint.sh"]
 
-RUN mv ./compose/production/django/start /start \
-  && sed -i 's/\r$//g' /start \
-  && chmod +x /start
 
-# make django owner of the WORKDIR directory as well.
-RUN chown django:django /app
-
+FROM builder AS prod
+RUN poetry install --without dev,django-dev,test,docs,quality
+RUN addgroup --system django && adduser --system --ingroup django django
+RUN mkdir -p /home/code \
+  && mv /code/* /home/code \
+  && rm -r /code \
+  && chown -R django:django /home/code
+WORKDIR /home/code
 USER django
-
-# RUN DATABASE_URL="" \
-#   DJANGO_SETTINGS_MODULE="config.settings.test" \
-#   python manage.py compilemessages
-
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["./entrypoint.sh"]

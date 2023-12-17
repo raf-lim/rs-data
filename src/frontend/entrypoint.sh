@@ -41,6 +41,12 @@ END
 
 >&2 echo 'PostgreSQL is available'
 
-# exec "$@"
 
-exec /start
+if [ "${DJANGO_SETTINGS_MODULE="config.settings.production"}" = "config.settings.local" ]; then
+  python manage.py migrate \
+    && python manage.py runserver 0.0.0.0:5000
+else
+  python manage.py migrate \
+    && python manage.py collectstatic --noinput \
+    && gunicorn config.wsgi
+fi
