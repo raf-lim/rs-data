@@ -3,9 +3,6 @@ __pycache__/
 .env
 
 **/.pytest_cache
-**/htmlcov
 **/.coverage
-
-**/.production/.app
-**/.production/.postgres
+**/htmlcov
 
