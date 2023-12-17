@@ -28,7 +28,7 @@ docker compose up -d
 ```
 Feed database with data:
 ```
-docker exec rs-data-updater python main.py
+docker exec updater python main.py
 ```
 Services should be now available:
 
@@ -38,31 +38,31 @@ Web: http://localhost:5000 (sign up and/or sing in to get access to content).
 
 Django superuser can be created but not required (e.g. for users' handling purpose).
 ```
-docker exec rs-data-frontend-django-local python manage.py createsuperuser
+docker exec frontend python manage.py createsuperuser
 ```
 
 #### Tests services
 updater
 ```
-docker exec rs-data-updater python -m pytest
+docker exec updater python -m pytest
 ```
 api
 ```
-docker exec rs-data-api python -m pytest
+docker exec api python -m pytest
 ```
 frontend
 ```
-docker exec rs-data-frontend python -m pytest
+docker exec frontend python -m pytest
 ```
 
 #### Tests' coverage
 ```
-docker exec rs-data-<service_name> coverage run -m pytest
-docker exec rs-data-<service_name> coverage report
+docker exec <service_name> coverage run -m pytest
+docker exec <service_name> coverage report
 ```
 Or run
 ```
-docker exec rs-data-<service> coverage html
+docker exec <service> coverage html
 ```
 and open the <service_name>/htmlcov/index.html in the browser.
 
