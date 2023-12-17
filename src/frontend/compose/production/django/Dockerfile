@@ -2,6 +2,9 @@ FROM python:3.11.6-slim-bullseye
 
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
 # Install required system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # Translations dependencies
@@ -14,9 +17,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 # needed for poetry
 ENV PYTHONPATH=${PYTHONPATH}:${PWD}
 
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
-
 # install poetry and dependencies
 COPY src/frontend/pyproject.toml src/frontend/poetry.lock ./
 RUN pip3 install --upgrade pip \
@@ -24,8 +24,7 @@ RUN pip3 install --upgrade pip \
   && poetry config virtualenvs.create false
 RUN poetry install --without dev,django-dev,test,docs,quality
 
-# RUN addgroup --system django \
-#     && adduser --system --ingroup django django
+RUN addgroup --system django && adduser --system -ingroup django django
 
 COPY src/frontend .
 
@@ -38,9 +37,9 @@ RUN mv ./compose/production/django/start /start \
   && chmod +x /start
 
 # make django owner of the WORKDIR directory as well.
-# RUN chown django:django /app
+RUN chown django:django /app
 
-# USER django
+USER django
 
 # RUN DATABASE_URL="" \
 #   DJANGO_SETTINGS_MODULE="config.settings.test" \
