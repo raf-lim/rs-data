@@ -1,7 +1,7 @@
 from unittest.mock import patch, MagicMock
 from unittest import TestCase
 import requests
-from sqlalchemy import create_engine, text, insert, select
+from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
 from db.base_class import Base
 from updaters.us.interfaces import Frequency
@@ -9,33 +9,34 @@ from updaters.us.fred import metrics, collectors
 from updaters.libs import exceptions
 from updaters.us.fred.metrics_plugins import metric_housing
 
-class TestSetLimitOfReadings:
-    LIMIT_FRED_DAILY = "252"
-    LIMIT_FRED_WEEKLY = "104"
-    LIMIT_FRED_MONTHLY = "60"
-    LIMIT_FRED_QUARTERLY = "40"
 
-    def test_frequency_daily(self):
+class TestSetLimitOfReadings:
+
+    def test_frequency_daily(self, period_limits):
         limit = collectors.set_limit_of_readings(
             frequency=Frequency.DAILY,
+            period_limits=period_limits
         )
         assert limit == 252
 
-    def test_frequency_weekly(self):
+    def test_frequency_weekly(self, period_limits):
         limit = collectors.set_limit_of_readings(
             frequency=Frequency.WEEKLY,
+            period_limits=period_limits
         )
         assert limit == 104
 
-    def test_frequency_monthly(self):
+    def test_frequency_monthly(self, period_limits):
         limit = collectors.set_limit_of_readings(
             frequency=Frequency.MONTHLY,
+            period_limits=period_limits
         )
         assert limit == 60
 
-    def test_frequency_quarterly(self):
+    def test_frequency_quarterly(self, period_limits):
         limit = collectors.set_limit_of_readings(
             frequency=Frequency.QUARTERLY,
+            period_limits=period_limits
         )
         assert limit == 40
 
@@ -82,10 +83,28 @@ class TestFindLastMetricDataDateInDb:
 
         with Session().connection() as conn:
             housing_obj = metric_housing.Metric()
-            last_date = metrics.find_last_metric_data_date_in_db(housing_obj, conn)
+            last_date = metrics.find_last_metric_data_date_in_db(
+                housing_obj, conn
+                )
             
         assert last_date == "2023-03-01"
 
+
+class TestGetConstituentUrl:
+
+    def test_valid_url(self, test_fred_base_url):
+        code = "gdp"
+        limit = 2
+        api_key = "fake_api_key"
+
+        url = collectors.get_constituent_url(
+            code, limit, test_fred_base_url, api_key
+            )
+        
+        assert url == (
+            f"https://test_fred_base_url/gdp&api_key=fake_api_key"
+            f"&sort_order=desc&limit=2&file_type=json"
+            )
 
 class TestFetchConstituentData:
 
@@ -95,9 +114,8 @@ class TestFetchConstituentData:
         mock_response = MagicMock(status_code=200)
         mock_response.json.return_value = {"foo": "bar"}
         mock_requests.get.return_value = mock_response
-        
-        result = collectors.fetch_constituent_data("foo", "bar")
-        
+
+        result = collectors.fetch_constituent_data("fake_url")
         assert result["foo"] == "bar"
         assert "foo" in result.keys()
         
@@ -107,7 +125,7 @@ class TestFetchConstituentData:
         mock_response = MagicMock(status_code=403)
         mock_requests.get.return_value = mock_response
 
-        collectors.fetch_constituent_data("foo", "bar")
+        collectors.fetch_constituent_data("fake_url")
         TestCase().assertRaises(requests.HTTPError)
             
     @patch(target="updaters.us.fred.collectors.requests")
@@ -119,7 +137,7 @@ class TestFetchConstituentData:
         mock_requests.get.return_value = mock_response
 
         with TestCase().assertRaises(requests.exceptions.RequestException):
-            collectors.fetch_constituent_data("foo", 5)
+            collectors.fetch_constituent_data("fake_url")
 
 
 class TestParseConstituentData:

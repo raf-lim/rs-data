@@ -1,4 +1,6 @@
+from os import getenv
 from typing import Protocol, Optional
+from enum import StrEnum
 import pandas as pd
 
 from updaters.us.interfaces import Frequency
@@ -58,3 +60,10 @@ def compute_period_to_period_change(
         constituents_data.append(data[[col_t, col_y]])
 
     return pd.concat(constituents_data, axis=1).sort_index()
+
+
+class PeriodDataLimits(StrEnum):
+    LIMIT_FRED_DAILY = getenv("LIMIT_FRED_DAILY")
+    LIMIT_FRED_WEEKLY = getenv("LIMIT_FRED_WEEKLY")
+    LIMIT_FRED_MONTHLY = getenv("LIMIT_FRED_MONTHLY")
+    LIMIT_FRED_QUARTERLY = getenv("LIMIT_FRED_QUARTERLY")

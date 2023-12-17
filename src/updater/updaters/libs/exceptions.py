@@ -1,3 +1,7 @@
+class MissingFredBaseUrlException(Exception):
+    """Raised when FRED BASE URL is not set"""
+
+
 class MissingFredApiKeyException(Exception):
     """Raised when FRED API key is not set"""
 
