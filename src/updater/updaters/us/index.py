@@ -1,7 +1,5 @@
-import sys
 from os import getenv
 import logging
-from typing import AnyStr
 import pandas as pd
 from requests import HTTPError, RequestException
 from db.base import engine
@@ -13,46 +11,55 @@ from updaters.libs import cleaners, statistics, helpers
 
 def main_us() -> None:
     """Main function for US updater app."""
+
     US_METRICS_PLUGINS_PATH = "updaters/us/fred/metrics_plugins"
+    
     FRED_BASE_URL = getenv("FRED_BASE_URL")
+    if not FRED_BASE_URL:
+        raise exceptions.MissingFredBaseUrlException(
+            "FRED BASE URL not found"
+        )
+
     API_KEY = getenv("FRED_API_KEY")
+    if not API_KEY:
+        raise exceptions.MissingFredApiKeyException(
+            "FRED API KEY not found"
+        )
 
     selected_metrics = (
         metrics.get_metrics_from_plugins(US_METRICS_PLUGINS_PATH)
         )
 
-    metrics_metadata: dict[str, dict[str, AnyStr]] = {}
+    metrics_metadata: dict[str, dict[str, str]] = {}
     for metric in selected_metrics:
         metrics_metadata.update(
             {metric.code: metrics.extract_metric_metadata(metric)}
             )
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
+        name_of_first_constituent = tuple(metric.constituents.keys())[0]
+        const_url = collectors.get_constituent_url(
+            name_of_first_constituent, limit=1,
+            fred_base_url=FRED_BASE_URL, api_key=API_KEY
+            )
         try:
-            with engine.connect() as connection:
-                last_date_in_db = metrics.find_last_metric_data_date_in_db(
-                    metric, connection
-                    )
-            name_of_first_constituent = tuple(metric.constituents.keys())[0]
-            const_url = collectors.get_constituent_url(
-                name_of_first_constituent, limit=1,
-                fred_base_url=FRED_BASE_URL, api_key=API_KEY
-                )
             last_date_in_api = (
                 collectors.fetch_constituent_data(const_url)
                 ["observations"][0]["date"]
                 )
+
+            with engine.connect() as connection:
+                last_date_in_db = metrics.find_last_metric_data_date_in_db(
+                    metric, connection
+                    )
 
             if last_date_in_db == last_date_in_api:
                 continue
 
         # In case of sqlalchemy error if table not exists program runs
         # and create the table for the metric
-        except exceptions.MissingFredApiKeyException:
-            logging.error("FRED API key not set")
-            sys.exit(1)
         except RequestException as e:
-            logging.warning(e)
+            logging.error(e)
             continue
         except exceptions.NoTableFoundException:
             pass

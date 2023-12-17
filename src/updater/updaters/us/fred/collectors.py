@@ -24,12 +24,12 @@ def set_limit_of_readings(
         case Frequency.MONTHLY:
             limit = int(period_limits.LIMIT_FRED_MONTHLY)
         case Frequency.QUARTERLY:
-            limit = int(period_limits.LIMIT_FRED_QUARTERLY.value)
+            limit = int(period_limits.LIMIT_FRED_QUARTERLY)
 
     return limit
 
 
-JSON = dict[str, str | int | float | list[dict[str | str]]]
+JSON = dict[str, str | int | float | list[dict[str, str]]]
 
 
 def get_constituent_url(
@@ -39,14 +39,14 @@ def get_constituent_url(
         api_key: str
         ) -> str:
     """Create endpoint URL fro FRED metric's constituent."""
-    
+
     return (
         f"{fred_base_url}{code}&api_key={api_key}"
         f"&sort_order=desc&limit={limit}&file_type=json"
         )
 
 
-def fetch_constituent_data(url: int) -> JSON:
+def fetch_constituent_data(url: str) -> JSON:
     """
     Get US metric's constituent data form Fred API.
     """

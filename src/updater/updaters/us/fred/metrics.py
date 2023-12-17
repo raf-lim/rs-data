@@ -47,6 +47,8 @@ def find_last_metric_data_date_in_db(
             text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
             )
     except ProgrammingError:
-        raise exceptions.NoTableFoundException
+        raise exceptions.NoTableFoundException(
+            f"No data table for {metric.name}"
+        )
         
     return last_date
