@@ -31,7 +31,7 @@ services:
       context: .
       dockerfile: ./src/updater/Dockerfile
       target: develop
-    image: rs-data-updater-dev
+    image: rs-data-updater
     container_name: updater
     volumes:
       - ./src/updater:/code
@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: ./src/api/Dockerfile
       target: develop
-    image: rs-data-api-dev
+    image: rs-data-api
     container_name: api
     ports:
       - 8000:8000
@@ -71,7 +71,7 @@ services:
       context: .
       dockerfile: ./src/frontend/Dockerfile
       target: develop
-    image: rs-data-frontend-dev
+    image: rs-data-frontend
     container_name: frontend
     depends_on:
       - db
