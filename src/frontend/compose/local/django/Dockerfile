@@ -34,6 +34,8 @@ RUN pip3 install --upgrade pip \
   && poetry config virtualenvs.create false
 RUN poetry install
 
+RUN addgroup --system django && adduser --system -ingroup django django
+
 COPY src/frontend .
 
 RUN mv ./compose/local/django/entrypoint /entrypoint \
@@ -44,6 +46,9 @@ RUN mv ./compose/local/django/start /start \
   && sed -i 's/\r$//g' /start \
   && chmod +x /start
 
-# USER dev-user
+# make django owner of the WORKDIR directory as well.
+RUN chown django:django /app
+
+USER django
 
 ENTRYPOINT ["/entrypoint"]
