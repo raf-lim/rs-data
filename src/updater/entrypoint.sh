@@ -10,7 +10,6 @@ done
 >&2 echo "Postgres is up - executing command"
 
 # running process to keep the container alive (in dev):
-if [ "$ENV_TYPE" = "dev" ]
-then
+if [ "${BUILD_ENVIRONMENT=prod}" = "develop" ]; then
   exec sh
 fi

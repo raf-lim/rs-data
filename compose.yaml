@@ -36,8 +36,10 @@ services:
     volumes:
       - ./src/updater:/code
     env_file:
-      - ./src/updater/.envs/.app
+      - ./src/updater/.envs
       - .env
+    environment:
+      BUILD_ENVIRONMENT: develop
     depends_on:
       - db
       # - cache
@@ -47,7 +49,7 @@ services:
     build:
       context: .
       dockerfile: ./src/api/Dockerfile
-      # target: develop
+      target: develop
     image: rs-data-api-dev
     container_name: api
     ports:
@@ -55,8 +57,9 @@ services:
     volumes:
       - ./src/api:/app
     env_file:
-      - ./src/api/.envs/.app
-      - .env
+      - ./src/api/.envs
+    environment:
+      BUILD_ENVIRONMENT: develop
     depends_on:
       - db
     # - cache
@@ -66,7 +69,8 @@ services:
   django:
     build:
       context: .
-      dockerfile: ./src/frontend/compose/local/django/Dockerfile
+      dockerfile: ./src/frontend/Dockerfile
+      target: develop
     image: rs-data-frontend-dev
     container_name: frontend
     depends_on:
@@ -74,12 +78,15 @@ services:
     volumes:
       - ./src/frontend:/app:z
     env_file:
-      - ./src/frontend/.envs/.local
+      - ./src/frontend/.envs
+    environment:
+      DJANGO_SETTINGS_MODULE: "config.settings.local"
+      USE_DOCKER: yes
     ports:
       - "5000:5000"
     # networks:
       # - rs-data_default
-    command: /start
+    # command: /start
 
 # networks:
   # rs-data_default: # this network is created automatically for the project

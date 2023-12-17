@@ -8,7 +8,7 @@ COPY src/updater/pyproject.toml src/updater/poetry.lock ./
 RUN pip3 install --upgrade pip \
   && pip3 install poetry \
   && poetry config virtualenvs.create false
-COPY src/updater/ ./
+COPY src/updater/ .
 RUN chmod +x ./entrypoint.sh
 
 FROM builder AS develop
@@ -18,10 +18,10 @@ ENTRYPOINT [ "sh", "./entrypoint.sh" ]
 FROM builder AS prod
 RUN poetry install --without dev,test
 RUN addgroup --system app && adduser --system --ingroup app app
-RUN mkdir -p /home/app \
-  && mv /code/* /home/app \
+RUN mkdir -p /home/code \
+  && mv /code/* /home/code \
   && rm -r /code \
-  && chown -R app:app /home/app
-WORKDIR /home/app
+  && chown -R app:app /home/code
+WORKDIR /home/code
 USER app
 ENTRYPOINT [ "sh", "./entrypoint.sh" ]
