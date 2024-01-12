@@ -55,7 +55,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./src/api:/app
+      - ./src/api:/code
     env_file:
       - ./src/api/.envs
     environment:
@@ -76,7 +76,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./src/frontend:/app:z
+      - ./src/frontend:/code:z
     env_file:
       - ./src/frontend/.envs
     environment:

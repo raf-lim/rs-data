@@ -28,7 +28,7 @@ RUN chmod +x ./entrypoint.sh
 
 FROM builder AS develop
 RUN poetry install
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT [ "sh", "./entrypoint.sh" ]
 
 
 FROM builder AS prod
@@ -40,4 +40,4 @@ RUN mkdir -p /home/code \
   && chown -R django:django /home/code
 WORKDIR /home/code
 USER django
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT [ "sh", "./entrypoint.sh" ]
