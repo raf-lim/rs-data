@@ -15,7 +15,7 @@ class TestExtractMetricsCodesFromDb:
 
     def test_no_tables(self, db):
         Base.metadata.drop_all(engine)
-        with pytest.raises(exceptions.NoEuMetricTableFound):
+        with pytest.raises(exceptions.NoEuMetricTableFoundException):
             eu.extract_metrics_codes_from_db(db)
 
 
@@ -108,7 +108,7 @@ class TestExtractCountriesCodesFromDb:
 
     def test_no_tables(self, db):
         Base.metadata.drop_all(engine)
-        with pytest.raises(exceptions.NoEuCountryTableFound):
+        with pytest.raises(exceptions.NoEuCountryTableFoundException):
             eu.extract_countries_codes_from_db(db)
 
 
@@ -143,7 +143,7 @@ class TestGetCountryStatsFromDb:
     def test_no_stats_tables(self, db_country_stats):
         metrics_getter = eu.extract_metrics_codes_from_db
 
-        with pytest.raises(exceptions.NoEuCountryTableFound):
+        with pytest.raises(exceptions.NoEuCountryTableFoundException):
             eu.get_country_statistics_from_db("pl", db_country_stats, metrics_getter)
 
 
@@ -151,7 +151,7 @@ class TestGetCountryStatsFromDb:
         Base.metadata.drop_all(engine)
         metrics_getter = eu.extract_metrics_codes_from_db
 
-        with pytest.raises(exceptions.NoEuMetricTableFound):
+        with pytest.raises(exceptions.NoEuMetricTableFoundException):
             eu.get_country_statistics_from_db("pl", db, metrics_getter)
 
         
