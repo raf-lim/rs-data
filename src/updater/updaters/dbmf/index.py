@@ -115,7 +115,6 @@ def main_dbmf() -> None:
             index_col='TICKER',
             )
         
-        tables_html: dict[str, str] = {}
         for ticker in tickers.index:
             try:
                 df = pd.read_sql_table(
@@ -141,25 +140,14 @@ def main_dbmf() -> None:
                         'BASE_MV change %',
                         'PCT_HOLDINGS',
                         ]]
-                    tables_html[ticker] = [
-                        tickers.loc[ticker, 'DESCRIPTION'],
-                        ]
-                else:
-                    tables_html[ticker] = [
-                        tickers.loc[ticker, 'DESCRIPTION'],
-                        ]
             except ValueError as e:
                 logging.info(e)
+                continue
 
-        htmls_tables_to_db = pd.DataFrame(
-            tables_html, index=['ticker', 'description']
-            ).transpose().reset_index()
-        htmls_tables_to_db.columns = ('ticker', 'ticker_name', 'table')
-
-        htmls_tables_to_db.to_sql(
-            name='tables_html_dbmf',
-            con=conn,
-            schema=DB_SCHEMA,
-            if_exists='replace'
-            )
+            df.to_sql(
+                name=f'dbmf_{ticker.lower()}_perf',
+                con=conn,
+                schema=DB_SCHEMA,
+                if_exists='replace'
+                )
         conn.commit()
