@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 import requests
 from requests import HTTPError, RequestException
 from updaters.us.interfaces import Frequency
