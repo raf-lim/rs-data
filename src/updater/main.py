@@ -6,13 +6,17 @@ from updaters.libs import exceptions
 
 
 if __name__ == "__main__":
-    # try:
-    #     main_us()
-    # except exceptions.MissingFredBaseUrlException as e:
-    #     logging.error(e)
-    # except exceptions.MissingFredApiKeyException as e:
-    #     logging.error(e)
+    #try:
+        #main_us()
+    #except exceptions.MissingFredBaseUrlException as e:
+        #logging.error(e)
+    #except exceptions.MissingFredApiKeyException as e:
+        #logging.error(e)
+    #except exceptions.FredMetricPluginNotFoundException as e: 
+        #logging.error(e)
+    #except exceptions.FredMetricsPluginsFolderEmpty as e:
+        #logging.error(e)
         
-    # main_eu()
+    #main_eu()
 
     main_dbmf()

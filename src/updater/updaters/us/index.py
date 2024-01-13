@@ -28,8 +28,13 @@ def main_us() -> None:
 
     selected_metrics = (
         metrics.get_metrics_from_plugins(US_METRICS_PLUGINS_PATH)
-        )
+    )
 
+    if not selected_metrics:
+        raise exceptions.FredMetricsPluginsFolderEmpty(
+            'FRED plugins directory empty'
+        )
+        
     metrics_metadata: dict[str, dict[str, str]] = {}
     for metric in selected_metrics:
         metrics_metadata.update(
@@ -55,12 +60,13 @@ def main_us() -> None:
 
             if last_date_in_db == last_date_in_api:
                 continue
-
-        # In case of sqlalchemy error if table not exists program runs
-        # and create the table for the metric
+        
         except RequestException as e:
             logging.error(e)
             continue
+
+        # In case of sqlalchemy error if table not exists program runs
+        # and create the table for the metric
         except exceptions.NoTableFoundException:
             pass
 

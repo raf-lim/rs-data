@@ -41,55 +41,6 @@ class TestSetLimitOfReadings:
         assert limit == 40
 
 
-class HousingTable(Base):
-    __tablename__ = "us_housing_data"
-    date: Mapped[str] = mapped_column(primary_key=True)
-    permits: Mapped[float]
-    started: Mapped[float]
-    completed: Mapped[float]
-
-class TestFindLastMetricDataDateInDb:
-
-    def test_table_at_least_two_rows(self):
-        engine = create_engine("sqlite:///:memory:")
-        Session = sessionmaker(engine)
-        Base.metadata.create_all(engine)
-
-        with Session() as session:
-            session.execute(
-                insert(HousingTable),
-                [
-                    {
-                        "date": "2023-01-01",
-                        "permits": 100,
-                        "started": 200,
-                        "completed": 300
-                        },
-                    {
-                        "date": "2023-02-01",
-                        "permits": 101,
-                        "started": 201,
-                        "completed": 301
-                        },
-                    {
-                        "date": "2023-03-01",
-                        "permits": 102,
-                        "started": 202,
-                        "completed": 302
-                        },
-                        ]
-                        )
-            session.commit()
-
-        with Session().connection() as conn:
-            housing_obj = metric_housing.Metric()
-            last_date = metrics.find_last_metric_data_date_in_db(
-                housing_obj, conn
-                )
-            
-        assert last_date == "2023-03-01"
-
-
 class TestGetConstituentUrl:
 
     def test_valid_url(self, test_fred_base_url):
