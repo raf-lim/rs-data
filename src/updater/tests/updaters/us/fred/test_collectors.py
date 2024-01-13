@@ -1,13 +1,9 @@
+import pytest
 from unittest.mock import patch, MagicMock
-from unittest import TestCase
 import requests
-from sqlalchemy import create_engine, insert
-from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
-from db.base_class import Base
 from updaters.us.interfaces import Frequency
-from updaters.us.fred import metrics, collectors
+from updaters.us.fred import collectors
 from updaters.libs import exceptions
-from updaters.us.fred.metrics_plugins import metric_housing
 
 
 class TestSetLimitOfReadings:
@@ -72,22 +68,11 @@ class TestFetchConstituentData:
         
     @patch(target="updaters.us.fred.collectors.requests")
     def test_fetch_constituent_data_negative(self, mock_requests):
-        
-        mock_response = MagicMock(status_code=403)
-        mock_requests.get.return_value = mock_response
-
-        collectors.fetch_constituent_data("fake_url")
-        TestCase().assertRaises(requests.HTTPError)
-            
-    @patch(target="updaters.us.fred.collectors.requests")
-    def test_fetch_constituent_data_negative_by_AI(self, mock_requests):
-        
         mock_response = MagicMock(status_code=404)
         mock_response.raise_for_status.side_effect = requests.HTTPError
-        
         mock_requests.get.return_value = mock_response
 
-        with TestCase().assertRaises(requests.exceptions.RequestException):
+        with pytest.raises(requests.exceptions.RequestException):
             collectors.fetch_constituent_data("fake_url")
 
 
@@ -130,9 +115,7 @@ class TestParseConstituentData:
             "observations": []
             }
 
-        with TestCase().assertRaises(
-            exceptions.FredApiNoObservationsDataException
-            ):
+        with pytest.raises(exceptions.FredApiNoObservationsDataException):
             collectors.parse_constituent_data(raw_data)
 
     def test_incorrect_data_from_api_no_obaservations(self):
@@ -141,7 +124,5 @@ class TestParseConstituentData:
             "key2": "val2",
             }
 
-        with TestCase().assertRaises(
-            exceptions.FredApiNoObservationsDataException
-            ):
+        with pytest.raises(exceptions.FredApiNoObservationsDataException):
             collectors.parse_constituent_data(raw_data)
