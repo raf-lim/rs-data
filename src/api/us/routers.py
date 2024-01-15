@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.base import get_db
-from operations import us
+from us import operations
 from libs import exceptions
 
 router_us = APIRouter(prefix="/us", tags=["US"])
@@ -16,7 +16,7 @@ async def get_metrics_data_endpoints(
     db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str]]:
     try:
-        return us.create_endpoints_to_metrics_data(db)
+        return operations.create_endpoints_to_metrics_data(db)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
@@ -26,7 +26,7 @@ async def get_metric_all_data(
     metric_code: str, limit: int = LIMIT, db: Session = Depends(get_db),
     ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     try:
-        return us.get_metric_all_info_from_db(metric_code, limit, db)
+        return operations.get_metric_all_info_from_db(metric_code, limit, db)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
@@ -37,8 +37,8 @@ async def get_metric_metadata(
     db: Session = Depends(get_db),
     ) -> dict[str, Any]:
     try:
-        metadata = us.get_metric_metadata_from_db(metric_code, db)
-        return us.add_metric_endpoint_url_to_metadata(metadata)
+        metadata = operations.get_metric_metadata_from_db(metric_code, db)
+        return operations.add_metric_endpoint_url_to_metadata(metadata)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404)
 
@@ -48,7 +48,7 @@ async def get_metric_data(
     metric_code: str, limit: int = LIMIT, db: Session = Depends(get_db)
     ) -> dict[str, dict[str, float | None]]:
     try:
-        return us.get_metric_data_from_db(metric_code, limit, db)
+        return operations.get_metric_data_from_db(metric_code, limit, db)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404) 
 
@@ -58,6 +58,6 @@ async def get_metric_statistics(
     metric_code: str, db: Session = Depends(get_db),
     ) -> dict[str, dict[str, float | None]]:
     try:
-        return us.get_metric_statistics_from_db(metric_code, db)
+        return operations.get_metric_statistics_from_db(metric_code, db)
     except exceptions.NoTableFoundException:
         raise HTTPException(status_code=404) 

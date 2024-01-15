@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
-from db.base_class import Base
+from sqlalchemy.orm import sessionmaker
 
 
 SQLALCHEMY_TEST_DB = "sqlite:///:memory:"
