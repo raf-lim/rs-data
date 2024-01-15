@@ -1,18 +1,8 @@
-
 import pytest
 from db.base_class import Base
-from .tester_db import engine, TestSessionLocal
+from tests.tester_db import engine, TestSessionLocal
 
-from .models import (
-    EsiData,
-    InduData,
-    ServData,
-    EsiStats,
-    InduStats,
-    PlData,
-    FrData,
-    DkData,
-)
+from models import EsiData, EsiStats, InduStats, PlData
 
 
 def get_fake_base_api_url() -> str:

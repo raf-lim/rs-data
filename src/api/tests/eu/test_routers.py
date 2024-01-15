@@ -1,9 +1,9 @@
-from db.base import get_db
-from .tester_db import override_get_db
-from main import app
 from fastapi.testclient import TestClient
-from.conftest import get_fake_base_api_url
-from routers.eu import get_base_api_url
+from db.base import get_db
+from eu.routers import get_base_api_url
+from main import app
+from tests.tester_db import override_get_db
+from conftest import get_fake_base_api_url
 
 
 def override_get_base_api_url():

@@ -1,8 +1,8 @@
 from os import getenv
 from fastapi import FastAPI
 import uvicorn
-from routers.us import router_us
-from routers.eu import router_eu
+from us.routers import router_us
+from eu.routers import router_eu
 
 
 app = FastAPI()
