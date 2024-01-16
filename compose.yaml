@@ -29,14 +29,14 @@ services:
   updater:
     build:
       context: .
-      dockerfile: ./src/updater/Dockerfile
+      dockerfile: ./updater/Dockerfile
       target: develop
     image: rs-data-updater
     container_name: updater
     volumes:
-      - ./src/updater:/code
+      - ./updater/src/:/code
     env_file:
-      - ./src/updater/.envs
+      - ./updater/.envs
       - .env
     environment:
       BUILD_ENVIRONMENT: develop
@@ -48,16 +48,16 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./src/api/Dockerfile
+      dockerfile: ./api/Dockerfile
       target: develop
     image: rs-data-api
     container_name: api
     ports:
       - 8000:8000
     volumes:
-      - ./src/api:/code
+      - ./api/src/:/code
     env_file:
-      - ./src/api/.envs
+      - ./api/.envs
     environment:
       BUILD_ENVIRONMENT: develop
     depends_on:
@@ -69,16 +69,16 @@ services:
   django:
     build:
       context: .
-      dockerfile: ./src/frontend/Dockerfile
+      dockerfile: ./frontend/Dockerfile
       target: develop
     image: rs-data-frontend
     container_name: frontend
     depends_on:
       - db
     volumes:
-      - ./src/frontend:/code:z
+      - ./frontend/src/:/code:z
     env_file:
-      - ./src/frontend/.envs
+      - ./frontend/.envs
     environment:
       DJANGO_SETTINGS_MODULE: "config.settings.local"
       USE_DOCKER: yes
