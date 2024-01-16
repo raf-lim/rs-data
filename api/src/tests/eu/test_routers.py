@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from db.base import get_db
 from eu.routers import get_base_api_url
-from main import app
+from api.src.main import app
 from tests.tester_db import override_get_db
 from conftest import get_fake_base_api_url
 
