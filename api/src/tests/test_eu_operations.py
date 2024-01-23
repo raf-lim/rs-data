@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import text
 from db.base_class import Base
 from eu import operations
 from libs import exceptions
@@ -129,7 +130,7 @@ class TestGetCountryDataFromDb:
             operations.get_country_data_from_db("pl", 0, db)
 
 
-class TestGetCountryStatsFromDb:
+class TestGetCountryStatisticsFromDb:
     
     def test_table_exists(self, db):
         metrics_getter = operations.extract_metrics_codes_from_db
@@ -139,13 +140,17 @@ class TestGetCountryStatsFromDb:
         assert data.get("PL_ESI") == {"percentile": 111, "last-previous": 112}
         assert data.get("PL_INDU") == {"percentile": 211, "last-previous": 212}
 
-
-    def test_no_stats_tables(self, db_country_stats):
+    def test_no_stats_tables(self, db):#_country_stats):
+        
         metrics_getter = operations.extract_metrics_codes_from_db
 
-        with pytest.raises(exceptions.NoEuCountryTableFoundException):
-            operations.get_country_statistics_from_db("pl", db_country_stats, metrics_getter)
+        db.execute(text("DROP TABLE eu_metric_esi_stats"))
+        db.execute(text("DROP TABLE eu_metric_indu_stats"))
+        db.commit()
+        db.close()
 
+        with pytest.raises(exceptions.NoEuCountryTableFoundException):
+            operations.get_country_statistics_from_db("pl", db, metrics_getter)
 
     def test_no_metrics_table(self, db):
         Base.metadata.drop_all(engine)

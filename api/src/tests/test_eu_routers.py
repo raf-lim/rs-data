@@ -1,7 +1,8 @@
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 from db.base import get_db
 from eu.routers import get_base_api_url
-from api.src.main import app
+from main import app
 from tests.tester_db import override_get_db
 from conftest import get_fake_base_api_url
 
@@ -217,7 +218,12 @@ class TestGetCountryStats:
         assert data["PL_ESI"] == {"percentile" : 111, "last-previous": 112}
         assert data["PL_INDU"] == {"percentile" : 211, "last-previous": 212}
 
-    def test_no_country_tables_exists(self, db_country_stats):
+    def test_no_country_tables_exists(self, db):
+        
+        db.execute(text("DROP TABLE eu_metric_esi_stats"))
+        db.execute(text("DROP TABLE eu_metric_indu_stats"))
+        db.commit()
+        db.close()
         response = client.get("eu/country/pl/stats")
 
         assert response.status_code == 404
