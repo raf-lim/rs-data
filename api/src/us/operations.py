@@ -58,21 +58,15 @@ def get_metric_metadata_from_db(
     ) -> dict[str, str]:
     """Get all metrics' metadata from database"""
     try:
-        columns = db.scalars(
-            text(f"""
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = :table_name
-                """), {"table_name": "us_metrics_metadata"}).all()
-        data = db.execute(
-            text(f"""
-                SELECT * FROM us_metrics_metadata
-                WHERE code = :metric_code
-                """), {"metric_code": metric_code}).all()
+        table = pd.read_sql_table(
+            "us_metrics_metadata",
+            con=db.connection(),
+            index_col='code'
+        ).loc[metric_code].to_dict()
+        table.update({"code": metric_code})
+        return table
     except Exception:
         raise exceptions.NoTableFoundException
-    
-    return {col: value for col, value in zip(columns, *data)}
     
 
 def add_metric_endpoint_url_to_metadata(
@@ -90,13 +84,14 @@ def add_metric_endpoint_url_to_metadata(
 def get_metric_all_info_from_db(
         metric_code: str,
         limit: Optional[int],
-        db: Session
+        db: Session,
+        api_base_url: str = THIS_API_BASE_URL,
 ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     """Get metric's data and statistics from database"""
     data = get_metric_data_from_db(metric_code, limit, db)
     stats = get_metric_statistics_from_db(metric_code, db)
     metadata = get_metric_metadata_from_db(metric_code, db)
-    metadata = add_metric_endpoint_url_to_metadata(metadata, THIS_API_BASE_URL)
+    metadata = add_metric_endpoint_url_to_metadata(metadata, api_base_url)
 
     metric_info = {"metadata": metadata}
     metric_info.update({"data": data})
