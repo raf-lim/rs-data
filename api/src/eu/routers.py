@@ -5,12 +5,9 @@ from sqlalchemy.orm import Session
 from db.base import get_db
 from . import operations
 from libs import exceptions
+from libs.base_url import get_base_api_url
 
 router_eu = APIRouter(prefix="/eu", tags=["Europe"])
-
-
-def get_base_api_url() -> str:
-    return getenv("THIS_API_BASE_URL")
 
 
 @router_eu.get("/metrics")

@@ -5,14 +5,13 @@ from sqlalchemy.orm import Session
 from db.base import get_db
 from us import operations
 from libs import exceptions
+from libs.base_url import get_base_api_url
 
 router_us = APIRouter(prefix="/us", tags=["US"])
 
 LIMIT = int(getenv("US_LIMIT_MONTHS"))
 
-def get_base_api_url() -> str:
-    """Returns base api url"""
-    return getenv("THIS_API_BASE_URL")
+
 
 
 @router_us.get("/metrics")
