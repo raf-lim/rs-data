@@ -1,13 +1,9 @@
 from fastapi.testclient import TestClient
 from db.base import get_db
-from us.routers import get_base_api_url
+from libs.base_url import get_base_api_url
 from main import app
 from tests.tester_db import override_get_db
-from conftest import get_fake_base_api_url
-
-
-def override_get_base_api_url():
-    return get_fake_base_api_url()
+from conftest import override_get_base_api_url
 
 
 app.dependency_overrides[get_db] = override_get_db
@@ -18,7 +14,7 @@ client = TestClient(app)
 
 class TestGetMetricsDataEndpoints:
 
-    def test_metrics_tables_exist_in_db(self, db_us, base_api_url):
+    def test_metrics_tables_exist_in_db(self, db_us):
         response = client.get("us/metrics")
         data = response.json()
         assert response.status_code == 200
@@ -36,7 +32,7 @@ class TestGetMetricsDataEndpoints:
 
 class TestGetMetricAllData:
 
-    def test_metric_table_exists(self, db_us, base_api_url):
+    def test_metric_table_exists(self, db_us):
         response = client.get("us/metric/housing")
         data = response.json()
         
@@ -48,7 +44,7 @@ class TestGetMetricAllData:
         assert data["metadata"]["name"] == "Housing"
         assert data["data"]["permits"] == {"2023-01-01": 100, "2023-02-01": 103}
 
-    def test_metric_table_exists_limit(self, db_us, base_api_url):
+    def test_metric_table_exists_limit(self, db_us):
         response = client.get("us/metric/housing?limit=1")
         data = response.json()
 
@@ -79,7 +75,7 @@ class TestGetMetricAllData:
 
 class TestGetMetricMetadata:
 
-    def test_metric_table_exists(self, db_us, base_api_url):
+    def test_metric_table_exists(self, db_us):
         response = client.get("us/metric/housing/metadata")
         metadata = response.json()
 
