@@ -4,7 +4,7 @@ from requests import RequestException
 import pandas as pd
 from db.base import engine
 from updaters.libs import cleaners, statistics
-from updaters.eu import countries, metrics, collectors
+from . import countries, metrics, collectors
 
 
 def main_eu():
