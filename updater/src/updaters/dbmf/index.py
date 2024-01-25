@@ -1,32 +1,23 @@
-import os
-import time
+from os import getenv
 import pandas as pd
 import logging
 from sqlalchemy import text
 import pandas as pd
 
 from db.base import engine
+from . import collectors
 
 logging.basicConfig(level=logging.INFO)
 
 
-DBMF_URL = os.getenv('DBMF_URL')
-DB_SCHEMA = 'public'
-
-
-def get_data():
-    """Get data from excel spreadsheet published on the website"""
-    df = pd.read_excel(DBMF_URL)
-    time.sleep(2)
-    df.columns = list(df.iloc[4, :])
-    df = df.iloc[5:, :].reset_index(drop=True)
-
-    return df
+DBMF_URL = getenv('DBMF_URL')
+EU_DB_SCHEMA = getenv("EU_DB_SCHEMA")
 
 
 def main_dbmf() -> None:
     """Update DBMF positioning and save to database"""
-    data = get_data().set_index('TICKER')
+    data = collectors.fetch_data(DBMF_URL)
+    data = collectors.parse_data(data).set_index('TICKER')
     with engine.connect() as conn:
         tickers_table_exists = conn.scalar(text(
             '''SELECT EXISTS(
@@ -34,13 +25,13 @@ def main_dbmf() -> None:
                 WHERE table_schema
                 LIKE :schema AND table_name = :table_name
                 )'''
-            ), {'schema': DB_SCHEMA, 'table_name': 'dbmf_tickers'}
+            ), {'schema': EU_DB_SCHEMA, 'table_name': 'dbmf_tickers'}
         )
         if tickers_table_exists:
             existing_tickers = pd.read_sql_table(
                 table_name='dbmf_tickers',
                 con=conn,
-                schema=DB_SCHEMA,
+                schema=EU_DB_SCHEMA,
                 index_col='TICKER',
             )
             new_tickers = set(data.index).difference(set(existing_tickers.index))
@@ -49,7 +40,7 @@ def main_dbmf() -> None:
                 new_data.to_sql(
                     name='dbmf_tickers',
                     con=conn,
-                    schema=DB_SCHEMA,
+                    schema=EU_DB_SCHEMA,
                     if_exists='append',
                 )
                 logging.info('New data added to dbmf_tickers table.')
@@ -60,7 +51,7 @@ def main_dbmf() -> None:
             dbmf_tickers.to_sql(
                 name='dbmf_tickers',
                 con=conn,
-                schema=DB_SCHEMA,
+                schema=EU_DB_SCHEMA,
                 if_exists='replace',
             )
             logging.info('Table dbmf_tickers created.')
@@ -75,7 +66,7 @@ def main_dbmf() -> None:
                 existing_data = pd.read_sql_table(
                     table_name=f'dbmf_{ticker.lower()}',
                     con=conn,
-                    schema=DB_SCHEMA,
+                    schema=EU_DB_SCHEMA,
                 )
                 existing_dates = existing_data.loc[:, ['DATE']]
                 existing_dates['DATE'] = pd.to_datetime(
@@ -90,7 +81,7 @@ def main_dbmf() -> None:
                     ticker_data.to_sql(
                         name=f'dbmf_{ticker.lower()}',
                         con=conn,
-                        schema=DB_SCHEMA,
+                        schema=EU_DB_SCHEMA,
                         if_exists='append',
                         index=False
                     )
@@ -101,7 +92,7 @@ def main_dbmf() -> None:
                 ticker_data.to_sql(
                     name=f'dbmf_{ticker.lower()}',
                     con=conn,
-                    schema=DB_SCHEMA,
+                    schema=EU_DB_SCHEMA,
                     if_exists='replace',
                     index=False
                     )
@@ -111,7 +102,7 @@ def main_dbmf() -> None:
         tickers = pd.read_sql_table(
             table_name='dbmf_tickers',
             con=conn,
-            schema=DB_SCHEMA,
+            schema=EU_DB_SCHEMA,
             index_col='TICKER',
             )
         
@@ -120,7 +111,7 @@ def main_dbmf() -> None:
                 df = pd.read_sql_table(
                     table_name=f'dbmf_{ticker.lower()}',
                     con=conn,
-                    schema=DB_SCHEMA,
+                    schema=EU_DB_SCHEMA,
                     index_col='DATE',
                     ).sort_index()
                 df.index = pd.to_datetime(df.index).date
@@ -147,7 +138,7 @@ def main_dbmf() -> None:
             df.to_sql(
                 name=f'dbmf_{ticker.lower()}_perf',
                 con=conn,
-                schema=DB_SCHEMA,
+                schema=EU_DB_SCHEMA,
                 if_exists='replace'
                 )
         conn.commit()
