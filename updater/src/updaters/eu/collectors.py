@@ -1,4 +1,3 @@
-import os
 import logging
 from typing import Any
 import requests
@@ -36,7 +35,7 @@ def parse_country_metric_data(raw_data: JSON):
     dates = raw_data["dimension"]["time"]["category"]["index"]
     
     for date, idx in dates.items():
-        dates.update({date: readings[str(idx)]})
+        dates.update({date: readings.get(str(idx))})
 
     data = pd.DataFrame({"date": dates.keys(), "value": dates.values()})
     data = data.sort_index().set_index("date")
