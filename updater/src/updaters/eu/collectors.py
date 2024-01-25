@@ -13,12 +13,10 @@ def compile_endpoint_url(
         ) -> str:
     """Compile endpoint url to get metric data for a country."""
     
-    return os.path.join(
-            base_url, f"?geo={country_code}&indic={metric_code}&s_adj=SA",
-            )
+    return f"{base_url}?geo={country_code}&indic={metric_code}&s_adj=SA"
 
 
-def get_data(url: str) -> pd.DataFrame:
+def fetch_data(url: str) -> pd.DataFrame:
     """Get Eurostat data for a metric of a country."""
     response = requests.get(url, timeout=None)
     try:
@@ -32,18 +30,16 @@ def get_data(url: str) -> pd.DataFrame:
 JSON = dict[str, str | dict[str | Any]]
 
 
-def parse_country_metric_data(data: JSON):
+def parse_country_metric_data(raw_data: JSON):
     """Parse data received from Eurostat API."""
-    dates = pd.Series(
-        data['dimension']['time']['category']['index'],
-        dtype='object',
-        )
-    dates.index.name = 'date'
-    dates = dates.to_frame().reset_index().drop(columns=[0])
-
-    values = pd.Series(data['value'], dtype=float)
-    values.index = values.index.astype(int)
-    values = values.to_frame()
+    readings = raw_data["value"]
+    dates = raw_data["dimension"]["time"]["category"]["index"]
     
-    return dates.join(values).set_index('date').sort_index()
+    for date, idx in dates.items():
+        dates.update({date: readings[str(idx)]})
+
+    data = pd.DataFrame({"date": dates.keys(), "value": dates.values()})
+    data = data.sort_index().set_index("date")
+
+    return data 
     

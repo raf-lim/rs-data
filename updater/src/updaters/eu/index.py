@@ -24,7 +24,7 @@ def main_eu():
                 BASE_URL, country_code, metric.code,
                 )
             try:
-                data = collectors.get_data(url)
+                data = collectors.fetch_data(url)
             except RequestException as e:
                 logging.warning(
                     f"{metric.name} for {country_code} error, message: {e}"
