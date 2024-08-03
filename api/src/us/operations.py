@@ -6,8 +6,6 @@ import pandas as pd
 import numpy as np
 from libs import exceptions
 
-THIS_API_BASE_URL = os.getenv("THIS_API_BASE_URL")
-
 
 def get_metric_data_from_db(
         metric_code: str,
@@ -71,7 +69,7 @@ def get_metric_metadata_from_db(
 
 def add_metric_endpoint_url_to_metadata(
         metadata: dict[str, str],
-        base_api_url: str = THIS_API_BASE_URL,
+        base_api_url: str,
         ) -> dict[str, str]:
     """Add endpoint url to metric's metadata""" 
     metadata["url"] = os.path.join(
@@ -84,14 +82,14 @@ def add_metric_endpoint_url_to_metadata(
 def get_metric_all_info_from_db(
         metric_code: str,
         limit: Optional[int],
-        db: Session,
-        api_base_url: str = THIS_API_BASE_URL,
+        base_api_url: str,
+        db: Session
 ) -> dict[str, dict[str, str] | dict[str, dict[str, float | None]]]:
     """Get metric's data and statistics from database"""
     data = get_metric_data_from_db(metric_code, limit, db)
     stats = get_metric_statistics_from_db(metric_code, db)
     metadata = get_metric_metadata_from_db(metric_code, db)
-    metadata = add_metric_endpoint_url_to_metadata(metadata, api_base_url)
+    metadata = add_metric_endpoint_url_to_metadata(metadata, base_api_url)
 
     metric_info = {"metadata": metadata}
     metric_info.update({"data": data})
@@ -102,7 +100,7 @@ def get_metric_all_info_from_db(
 
 def create_endpoints_to_metrics_data(
         db: Session,
-        base_api_url: str = THIS_API_BASE_URL,
+        base_api_url: str,
         ) -> dict[str, dict[str, str]]:
     """
     Create dictionary with base links to request data of available us metrics.
