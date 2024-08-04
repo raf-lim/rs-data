@@ -4,9 +4,7 @@ import numpy as np
 from libs import exceptions
 
 
-def extract_tickers_from_db(
-        db: Session
-    ) -> dict[str, dict[str, str]]:
+def extract_tickers_from_db(db: Session) -> dict[str, dict[str, str]]:
     """Extract DBMF ticker from ticker's table in database"""
     try:
         data = pd.read_sql_table(
@@ -23,8 +21,7 @@ def extract_tickers_from_db(
     return data.to_dict()
 
 
-def get_position_stats(
-        ticker: str, db: Session) -> dict[str, dict[str, float | None]]:
+def get_position_stats(ticker: str, db: Session) -> dict[str, dict[str, float | None]]:
     """Fetch position status from ticker's stats table in db"""
     try:
         data = pd.read_sql_table(
@@ -34,9 +31,8 @@ def get_position_stats(
         )
     except ValueError:
         raise exceptions.NoTableFoundException
-    
+
     data.index = data.index.astype(str)
-    data.replace(to_replace=np.NaN, value=None, inplace=True)
+    data.replace(to_replace=np.nan, value=None, inplace=True)
 
     return data.to_dict()
-    

@@ -15,6 +15,7 @@ LIMIT = int(os.getenv("EU_LIMIT_MONTHS"))
 
 class MacroEuMetrics(LoginRequiredMixin, View):
     """Represents EU countries performance - metrics perspective."""
+
     API_BASE_URL = os.getenv("API_BASE_URL")
 
     def get(self, request):
@@ -26,18 +27,23 @@ class MacroEuMetrics(LoginRequiredMixin, View):
             return render(
                 request,
                 "404.html",
-                {"exception": (
-                    f"Not a single EU metric's table in the database. "
-                    f"Try feeding the database using updater service."
-                    )})
+                {
+                    "exception": (
+                        f"Not a single EU metric's table in the database. "
+                        f"Try feeding the database using updater service."
+                    )
+                },
+            )
 
         metrics_metadata = response.json()
 
         metrics_tables = {}
         for metric_code, meta in metrics_metadata.items():
             metric_all_data_url = os.path.join(
-                self.API_BASE_URL, "eu/metric", metric_code,
-                )
+                self.API_BASE_URL,
+                "eu/metric",
+                metric_code,
+            )
             response = requests.get(metric_all_data_url)
             try:
                 response.raise_for_status()
@@ -48,12 +54,11 @@ class MacroEuMetrics(LoginRequiredMixin, View):
             data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
-                stats_dict.values(), stats_dict.keys(),
-                ).transpose()
+                stats_dict.values(),
+                stats_dict.keys(),
+            ).transpose()
 
-            data_with_stats = (
-                pd.concat([data, stats]).transpose().fillna(np.NaN)
-                )
+            data_with_stats = pd.concat([data, stats]).transpose().fillna(np.nan)
             table = stylers.MetricTableStyler(data_with_stats)
             styled_table = table.style_table_index_with_difference_stats()
 
@@ -66,6 +71,7 @@ class MacroEuMetrics(LoginRequiredMixin, View):
 
 class MacroEuCountries(LoginRequiredMixin, View):
     """Represents EU countries performance - country perspective."""
+
     API_BASE_URL = os.getenv("API_BASE_URL")
 
     def get(self, request):
@@ -78,21 +84,30 @@ class MacroEuCountries(LoginRequiredMixin, View):
             return render(
                 request,
                 "404.html",
-                {"exception": (
-                    f"Not a single EU country's table in the database. "
-                    f"Try feeding the datbase using updater service.")},
-                )
+                {
+                    "exception": (
+                        f"Not a single EU country's table in the database. "
+                        f"Try feeding the datbase using updater service."
+                    )
+                },
+            )
 
         countries_codes: list[str] = response.json()
 
         countries_tables = {}
         for country_code in countries_codes:
             country_data_url = os.path.join(
-                self.API_BASE_URL, "eu/country", country_code, "data",
-                )
+                self.API_BASE_URL,
+                "eu/country",
+                country_code,
+                "data",
+            )
             country_stats_url = os.path.join(
-                self.API_BASE_URL, "eu/country", country_code, "stats",
-                )
+                self.API_BASE_URL,
+                "eu/country",
+                country_code,
+                "stats",
+            )
 
             response_data = requests.get(country_data_url)
             try:

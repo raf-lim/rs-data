@@ -26,20 +26,24 @@ class MacroUsMetrics(LoginRequiredMixin, View):
             return render(
                 request,
                 "404.html",
-                {"exception": (
-                    f"Not a single US metric's table in the database. "
-                    f"Try feeding the database using updater service "
-                    f"(if you have got relevant API key/keys)."
+                {
+                    "exception": (
+                        f"Not a single US metric's table in the database. "
+                        f"Try feeding the database using updater service "
+                        f"(if you have got relevant API key/keys)."
                     )
-                    })
+                },
+            )
 
         metrics_metadata = response.json()
 
         metrics_tables = {}
         for metric_code, meta in metrics_metadata.items():
             metric_all_data_url = os.path.join(
-                self.API_BASE_URL, "us/metric", metric_code,
-                )
+                self.API_BASE_URL,
+                "us/metric",
+                metric_code,
+            )
             response_metric = requests.get(metric_all_data_url)
             try:
                 response_metric.raise_for_status()
@@ -50,14 +54,11 @@ class MacroUsMetrics(LoginRequiredMixin, View):
             data = pd.DataFrame(metric_all_data["data"])[-LIMIT:]
             stats_dict = metric_all_data["statistics"]
             stats = pd.DataFrame(
-                stats_dict.values(), stats_dict.keys(),
-                ).transpose()
+                stats_dict.values(),
+                stats_dict.keys(),
+            ).transpose()
 
-            data_with_stats = (
-                pd.concat([data, stats])
-                .transpose()
-                .fillna(np.NaN)
-                )
+            data_with_stats = pd.concat([data, stats]).transpose().fillna(np.nan)
 
             table = stylers.MetricTableStyler(data_with_stats)
 
@@ -69,7 +70,6 @@ class MacroUsMetrics(LoginRequiredMixin, View):
                 styled_table = table.style_table_change_with_difference_stats()
 
             metrics_tables[meta.get("name")] = styled_table.to_html()
-
 
         context = {"tables": metrics_tables}
 
