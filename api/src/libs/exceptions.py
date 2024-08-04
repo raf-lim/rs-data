@@ -8,3 +8,7 @@ class NoEuMetricTableFoundException(Exception):
 
 class NoEuCountryTableFoundException(Exception):
     """Raised if no country's table found in database"""
+
+
+class NoDbmfTickerFoundException(Exception):
+    """Raised if no ticker found in dbmf tickers table"""
