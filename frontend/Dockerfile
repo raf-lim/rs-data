@@ -1,4 +1,4 @@
-FROM python:3.11.6-slim-bullseye as builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /code
 

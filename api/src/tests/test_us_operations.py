@@ -26,8 +26,8 @@ class TestGetMetricStatisticsFromDb:
         table = operations.get_metric_statistics_from_db('housing', db=db_us)
 
         assert isinstance(table, dict)
-        assert table['permits']['2023-01-01'] == 200
-        assert table['started']
+        assert table['permits']['percentile'] == 200
+        assert table['started']['last/previous'] == 204
         assert table['completed']
     
     def test_table_not_exists(self, db_us):
@@ -69,7 +69,7 @@ class TestGetMetricAllInfoFromDb:
 
     def test_metric_tables_exist(self, db_us, base_api_url):
         metric_info = operations.get_metric_all_info_from_db(
-            "housing", 0, db_us, base_api_url
+            "housing", 0, base_api_url, db_us
         )
         assert metric_info["metadata"]["name"] == "Housing"
         assert [*metric_info["data"]] == ["permits", "started", "completed"]

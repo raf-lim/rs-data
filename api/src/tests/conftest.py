@@ -6,8 +6,13 @@ from models_eu import EsiData, EsiStats, InduStats, PlData
 from models_us import HousingData, HousingStats, UsMetricsMetadata
 
 
-def get_fake_base_api_url() -> str:
+def override_get_base_api_url() -> str:
     return "https://test_base_api_url"
+
+
+@pytest.fixture
+def base_api_url():
+    return override_get_base_api_url()
 
 
 def fake_eu_data():
@@ -24,25 +29,8 @@ def fake_eu_data():
     return fake_data
 
 
-def fake_us_data():
-    fake_data = [
-        HousingData(date="2023-01-01", permits=100, started=101, completed=102),
-        HousingStats(index="2023-01-01", permits=200, started=201, completed=202),
-        UsMetricsMetadata(
-            code='housing', name='Housing', frequency='monthly',
-            data='index', stats='change'
-        )
-    ]
-    return fake_data
-
-
 @pytest.fixture
-def base_api_url():
-    return get_fake_base_api_url()
-
-
-@pytest.fixture
-def db():
+def db_eu():
     Base.metadata.create_all(engine)
     try:
         session = TestSessionLocal()
@@ -53,6 +41,20 @@ def db():
     finally:
         session.close()
         Base.metadata.drop_all(engine)
+
+
+def fake_us_data():
+    fake_data = [
+        HousingData(date="2023-01-01", permits=100, started=101, completed=102),
+        HousingData(date="2023-02-01", permits=103, started=104, completed=105),
+        HousingStats(index="percentile", permits=200, started=201, completed=202),
+        HousingStats(index="last/previous", permits=203, started=204, completed=205),
+        UsMetricsMetadata(
+            code='housing', name='Housing', frequency='monthly',
+            data='index', stats='change'
+        )
+    ]
+    return fake_data
 
 
 @pytest.fixture

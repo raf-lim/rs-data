@@ -1,14 +1,10 @@
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 from db.base import get_db
-from eu.routers import get_base_api_url
+from libs.base_url import get_base_api_url
 from main import app
 from tests.tester_db import override_get_db
-from conftest import get_fake_base_api_url
-
-
-def override_get_base_api_url():
-    return get_fake_base_api_url()
+from conftest import override_get_base_api_url
 
 
 app.dependency_overrides[get_db] = override_get_db
@@ -19,7 +15,7 @@ client = TestClient(app)
 
 class TestGetMetricsMetadata:
 
-    def test_metrics_tables_exist_in_db(self, db):
+    def test_metrics_tables_exist_in_db(self, db_eu):
         response = client.get("eu/metrics")
         data = response.json()
         assert response.status_code == 200
@@ -53,7 +49,7 @@ class TestGetMetricsMetadata:
 
 class TestMetricAllData:
 
-    def test_metrics_tables_exists(self, db):
+    def test_metrics_tables_exists(self, db_eu):
         response = client.get("eu/metric/esi")
         data = response.json()
 
@@ -87,7 +83,7 @@ class TestMetricAllData:
             "percentile": None, "last-previous": None,
             }
 
-    def test_metrics_tables_exists_limit(self, db):
+    def test_metrics_tables_exists_limit(self, db_eu):
         response = client.get("eu/metric/esi?limit=1")
         data = response.json()
 
@@ -122,9 +118,28 @@ class TestMetricAllData:
         assert response.json()["detail"] == "Not Found"
 
 
+class TestGetMetricMetadata:
+
+    def test_positive(self):
+        response = client.get("eu/metric/esi/metadata")
+        data = response.json()
+
+        assert response.status_code == 200
+        assert data["code"] == "esi"
+        assert data["url"] == (
+            "https://test_base_api_url/eu/metric/esi"
+            )
+        assert data["url_data"] == (
+            "https://test_base_api_url/eu/metric/esi/data"
+            )
+        assert data["url_stats"] == (
+            "https://test_base_api_url/eu/metric/esi/stats"
+            )
+
+
 class TestGetMetricData:
 
-    def test_table_exists(self, db):
+    def test_table_exists(self, db_eu):
         response = client.get("eu/metric/esi/data")
         data = response.json()
 
@@ -133,7 +148,7 @@ class TestGetMetricData:
         assert data["FR_ESI"] == {"2023-01-01" : None, "2023-02-01": None}
         assert data["DK_ESI"] == {"2023-01-01" : None, "2023-02-01": None}
 
-    def test_table_exists_limit(self, db):
+    def test_table_exists_limit(self, db_eu):
         response = client.get("eu/metric/esi/data?limit=1")
         data = response.json()
 
@@ -151,7 +166,7 @@ class TestGetMetricData:
 
 class TestGetMetricStats:
 
-    def test_table_exists(self, db):
+    def test_table_exists(self, db_eu):
         response = client.get("eu/metric/esi/stats")
         data = response.json()
 
@@ -169,7 +184,7 @@ class TestGetMetricStats:
 
 class TestGetCountiresCodes:
 
-    def test_table_exists(self, db):
+    def test_table_exists(self, db_eu):
         response = client.get("eu/countries")
         data = response.json()
 
@@ -185,7 +200,7 @@ class TestGetCountiresCodes:
 
 class TestGetCountryData:
 
-    def test_table_exists(self, db):
+    def test_table_exists(self, db_eu):
         response = client.get("eu/country/pl/data")
         data = response.json()
 
@@ -193,7 +208,7 @@ class TestGetCountryData:
         assert data["PL_ESI"] == {"2023-03-01" : None, "2023-04-01": None}
         assert data["PL_INDU"] == {"2023-03-01" : 13, "2023-04-01": 14}
 
-    def test_table_exists_limit(self, db):
+    def test_table_exists_limit(self, db_eu):
         response = client.get("eu/country/pl/data?limit=1")
         data = response.json()
 
@@ -210,7 +225,7 @@ class TestGetCountryData:
 
 class TestGetCountryStats:
 
-    def test_table_exists(self, db):
+    def test_table_exists(self, db_eu):
         response = client.get("eu/country/pl/stats")
         data = response.json()
 
@@ -218,12 +233,12 @@ class TestGetCountryStats:
         assert data["PL_ESI"] == {"percentile" : 111, "last-previous": 112}
         assert data["PL_INDU"] == {"percentile" : 211, "last-previous": 212}
 
-    def test_no_country_tables_exists(self, db):
+    def test_no_country_tables_exists(self, db_eu):
         
-        db.execute(text("DROP TABLE eu_metric_esi_stats"))
-        db.execute(text("DROP TABLE eu_metric_indu_stats"))
-        db.commit()
-        db.close()
+        db_eu.execute(text("DROP TABLE eu_metric_esi_stats"))
+        db_eu.execute(text("DROP TABLE eu_metric_indu_stats"))
+        db_eu.commit()
+        db_eu.close()
         response = client.get("eu/country/pl/stats")
 
         assert response.status_code == 404
