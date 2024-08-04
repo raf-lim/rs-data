@@ -37,16 +37,20 @@ def main_us() -> None:
         
     metrics_metadata: dict[str, dict[str, str]] = {}
     for metric in selected_metrics:
+
         metrics_metadata.update(
             {metric.code: metrics.extract_metric_metadata(metric)}
             )
+
         # Check whether data in db table is up-to-date.
         # If it is then no update for this metric.
         name_of_first_constituent = tuple(metric.constituents.keys())[0]
+
         const_url = collectors.get_constituent_url(
             name_of_first_constituent, limit=1,
             fred_base_url=FRED_BASE_URL, api_key=API_KEY
             )
+
         try:
             last_date_in_api = (
                 collectors.fetch_constituent_data(const_url)
