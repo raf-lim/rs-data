@@ -3,7 +3,7 @@ import logging
 import importlib
 from typing import AnyStr
 from sqlalchemy import Connection, text
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, OperationalError
 from updaters.us.interfaces import UsMetric
 from updaters.libs import exceptions
 
@@ -52,5 +52,7 @@ def find_last_metric_data_date_in_db(
             text(f"SELECT date FROM {table_name} ORDER BY date DESC LIMIT 1")
         )
         return last_date
-    except ProgrammingError:
+    except (ProgrammingError, OperationalError):
+        # TODO:
+        # OperationalError works for tests using sqlite
         raise exceptions.NoTableFoundException(f"No data table for {metric.name}")
