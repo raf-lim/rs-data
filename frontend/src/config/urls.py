@@ -17,6 +17,7 @@ urlpatterns = [
     # Your stuff: custom urls includes go here
     path("macro_us/", include("frontend.macro_us.urls", namespace="macro_us")),
     path("macro_eu/", include("frontend.macro_eu.urls", namespace="macro_eu")),
+    path("dbmf/", include("frontend.dbmf.urls", namespace="dbmf")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
