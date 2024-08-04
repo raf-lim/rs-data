@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS builder
+FROM python:3.12-slim AS builder
 WORKDIR /code
 RUN apt-get update \
   && apt-get install -y --no-install-recommends -y postgresql-client \
